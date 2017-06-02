@@ -4,10 +4,6 @@ from    microWebSrv import MicroWebSrv
 
 # ----------------------------------------------------------------------------
 
-print()
-print("=======================================================================")
-print()
-
 wlan = WLAN()
 wlan.init(mode=WLAN.STA)
 wlan.connect( ssid = "JCzic",
@@ -66,10 +62,8 @@ routeHandlers = [
 	( "/test",	"GET",	_httpHandlerTestGet ),
 	( "/test",	"POST",	_httpHandlerTestPost )
 ]
-MicroWebSrv(routeHandlers=routeHandlers)
 
-print()
-print("=======================================================================")
-print()
+srv = MicroWebSrv(routeHandlers=routeHandlers)
+srv.Start(threaded=False)
 
 # ----------------------------------------------------------------------------

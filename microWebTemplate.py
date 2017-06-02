@@ -24,8 +24,9 @@ class MicroWebTemplate :
     # ===( Constructor )==========================================================
     # ============================================================================
 
-	def __init__(self, code) :
+	def __init__(self, code, escapeStrFunc=None) :
 		self._code   		= code
+		self._escapeStrFunc	= escapeStrFunc
 		self._pos    		= 0
 		self._endPos 		= len(code)-1
 		self._line   		= 1
@@ -111,9 +112,10 @@ class MicroWebTemplate :
 	# ----------------------------------------------------------------------------
 
 	def _processToken(self, tokenContent, execute) :
-		parts 		 = tokenContent.strip().split(' ', 1)
-		instructName = parts[0]
-		instructBody = parts[1] if len(parts) > 1 else None
+		tokenContent = tokenContent.strip()
+		parts 		 = tokenContent.split(' ', 1)
+		instructName = parts[0].strip()
+		instructBody = parts[1].strip() if len(parts) > 1 else None
 		if len(instructName) == 0 :
 			raise Exception( '"%s %s" : instruction is missing (line %s)'
 							 % (MicroWebTemplate.TOKEN_OPEN, MicroWebTemplate.TOKEN_CLOSE, self._line) )
@@ -122,9 +124,13 @@ class MicroWebTemplate :
 			newTokenToProcess = self._instructions[instructName](instructBody, execute)
 		elif execute :
 			try :
-				self._rendered += str( eval( tokenContent.strip(),
-										     self._pyGlobalVars,
-										     self._pyLocalVars ) )
+				s = str( eval( tokenContent,
+							   self._pyGlobalVars,
+							   self._pyLocalVars ) )
+				if (self._escapeStrFunc is not None) :
+					self._rendered += self._escapeStrFunc(s)
+				else :
+					self._rendered += s
 			except :
 				raise Exception('%s (line %s)' % (exc_info()[1], self._line))
 		return newTokenToProcess
@@ -158,7 +164,8 @@ class MicroWebTemplate :
 					 	self._line += 1
 					tokenContent += c
 					x 			 += 1
-				if tokenContent.strip() == MicroWebTemplate.INSTRUCTION_END :
+				tokenContent = tokenContent.strip()
+				if tokenContent == MicroWebTemplate.INSTRUCTION_END :
 					break
 				raise Exception( '"%s" is a bad instruction in a python bloc (line %s)'
 								 % (tokenContent, self._line) )				
@@ -195,7 +202,7 @@ class MicroWebTemplate :
 		if instructionBody is not None :
 			if execute :
 				try :
-					result = eval(instructionBody.strip(), self._pyGlobalVars, self._pyLocalVars)
+					result = eval(instructionBody, self._pyGlobalVars, self._pyLocalVars)
 					if not isinstance(result, bool) :
 						raise Exception('"%s" is not a boolean expression (line %s)' % (instructionBody, self._line))
 				except :
@@ -246,17 +253,17 @@ class MicroWebTemplate :
 
 	def _processInstructionFOR(self, instructionBody, execute) :
 		if instructionBody is not None :
-			parts 	   = instructionBody.strip().split(' ', 1)
-			identifier = parts[0]
+			parts 	   = instructionBody.split(' ', 1)
+			identifier = parts[0].strip()
 			if self._reIdentifier.match(identifier) is not None and len(parts) > 1 :
 				parts = parts[1].strip().split(' ', 1)
 				if parts[0] == 'in' and len(parts) > 1 :
-					expression  	   = parts[1]
+					expression  	   = parts[1].strip()
 					newTokenToProcess  = None
 					beforePos   	   = self._pos
 					if execute :
 						try :
-							result = eval(expression.strip(), self._pyGlobalVars, self._pyLocalVars)
+							result = eval(expression, self._pyGlobalVars, self._pyLocalVars)
 						except :
 							raise Exception('%s (line %s)' % (exc_info()[1], self._line))
 					if execute and len(result) > 0 :

@@ -1,11 +1,15 @@
 
-from 	microWebTemplate	import MicroWebTemplate
 from    ujson   			import dumps
 from    uos     			import stat
 from    _thread 			import start_new_thread
 from    utime   			import sleep_ms
 from    sys					import exc_info
 import  socket
+
+try :
+    from microWebTemplate import MicroWebTemplate
+except :
+    pass
 
 class MicroWebSrv :
 
@@ -28,7 +32,6 @@ class MicroWebSrv :
         ".txt"      : "text/plain",
         ".htm"      : "text/html",
         ".html"     : "text/html",
-        ".pyhtml"   : "text/html",
         ".css"      : "text/css",
         ".csv"      : "text/csv",
         ".js"       : "application/javascript",
@@ -58,25 +61,26 @@ class MicroWebSrv :
         self._srvAddr       = ('0.0.0.0', port)
         self._webPath       = webPath
         self._started       = False
-        self.Start()
 
     # ============================================================================
     # ===( Server Thread )========================================================
     # ============================================================================
 
-    def _serverThread(self, server) :
+    def _serverProcess(self) :
+        self._started = True
         while True :
             try :
-                client, cliAddr = server.accept()
+                client, cliAddr = self._server.accept()
             except :
                 break
             self._client(self, client, cliAddr)
+        self._started = False
 
     # ============================================================================
     # ===( Functions )============================================================
     # ============================================================================
 
-    def Start(self) :
+    def Start(self, threaded=True) :
         if not self._started :
             self._server = socket.socket( socket.AF_INET,
                                           socket.SOCK_STREAM,
@@ -86,15 +90,16 @@ class MicroWebSrv :
                                      1 )
             self._server.bind(self._srvAddr)
             self._server.listen(1)
-            self._started = True
-            start_new_thread(self._serverThread, (self._server, ))
+            if threaded :
+                start_new_thread(self._serverProcess, ())
+            else :
+                self._serverProcess()
 
     # ----------------------------------------------------------------------------
 
     def Stop(self) :
         if self._started :
             self._server.close()
-            self._started = False
 
     # ----------------------------------------------------------------------------
 
@@ -222,14 +227,14 @@ class MicroWebSrv :
                         elif self._method.upper() == "GET" :
                             filepath = self._microWebSrv._physPathFromURLPath(self._resPath)
                             if filepath is not None :
-                                contentType = self._microWebSrv.GetMimeTypeFromFilename(filepath)
-                                if contentType is not None :
-                                	if self._microWebSrv._isPyHTMLFile(filepath) :
-                                		response.WriteResponsePyHTMLFile(filepath)
-                                	else :
-                                		response.WriteResponseFile(filepath, contentType)
+                                if self._microWebSrv._isPyHTMLFile(filepath) :
+                                    response.WriteResponsePyHTMLFile(filepath)
                                 else :
-                                	response.WriteResponseUnauthorized()
+                                    contentType = self._microWebSrv.GetMimeTypeFromFilename(filepath)
+                                    if contentType is not None :
+                                        response.WriteResponseFile(filepath, contentType)
+                                    else :
+                                    	response.WriteResponseUnauthorized()
                             else :
                                 response.WriteResponseNotFound()
                         else :
@@ -450,13 +455,16 @@ class MicroWebSrv :
         # ------------------------------------------------------------------------
 
         def WriteResponsePyHTMLFile(self, filepath, headers=None) :
-        	with open(filepath, 'r') as file :
-        		code = file.read()
-        	mWebTmpl = MicroWebTemplate(code)
-        	try :
-        		return self.WriteResponseOk(headers, "text/html", "UTF-8", mWebTmpl.Execute())
-        	except :
-        		return self.WriteResponse( 500,
+            with open(filepath, 'r') as file :
+                code = file.read()
+            try :
+                mWebTmpl = MicroWebTemplate(code, escapeStrFunc=self._client._microWebSrv.HTMLEscape)
+            except :
+                return self.WriteResponseNotImplemented()
+            try :
+                return self.WriteResponseOk(headers, "text/html", "UTF-8", mWebTmpl.Execute())
+            except :
+                return self.WriteResponse( 500,
 	                                       None,
 	                                       "text/html",
 	                                       "UTF-8",
