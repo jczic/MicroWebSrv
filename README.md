@@ -6,6 +6,13 @@ Very easy to integrate and very light with 2 files only :
 - `"microWebSrv.py"` - The Web server
 - `"microWebTemplate.py"` - The optional templating language for **.pyhtml** rendered pages
 
+Simple but effective :
+- Use it to embed a cool Web site in yours modules
+- Handle POST requests to interract with user and configure options
+- Exchange in JSON format on HTTP methods to make an embedded fullREST API
+- Serve files on the fly to export any data to the user
+- Play with AjAX to interact speedly with a Web application
+
 ### Using *microWebSrv* main class :
 
 | Name  | Function |
@@ -148,6 +155,41 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
 | ELIF | `{{ elif` *MicroPython condition* `}}` *html bloc* `{{ end }}` |
 | ELSE | `{{ else }}` *html bloc* `{{ end }}` |
 | FOR  | `{{ for` *identifier* `in` *MicroPython iterator* `}}` *html bloc* `{{ end }}` |
+| ?    | `{{` *MicroPython expression* `}}` |
+
+
+### Using {{ py }} :
+
+```python
+{{ py }}
+  import machine
+  from utime import sleep
+  test = 123
+  def testFunc(x) :
+    return 2 * x
+{{ end }}
+```
+
+### Using {{ if ... }} :
+
+```python
+{{ if testFunc(5) <= 3 }}
+  <span>titi</span>
+{{ elif testFunc(10) >= 15 }}
+  <span>tata</span>
+{{ else }}
+  <span>I like the number {{ test }} !</span>
+{{ end }}
+```
+
+### Using {{ for ... }} :
+
+```python
+{{ for toto in range(testFunc(3)) }}
+  <div>toto x 10 equal {{ toto * 10 }}</div>
+  <hr />
+{{ end }}
+```
 
 ### Example of a .pyhtml file :
 
@@ -187,4 +229,7 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
 </html>
 ```
 
+
 ### By JC`zic ;')
+
+*Keep it simple, stupid* :+1:
