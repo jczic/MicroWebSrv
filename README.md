@@ -20,6 +20,7 @@ Simple but effective :
 | Constructor | `mws = MicroWebSrv(routeHandlers=None, port=80, webPath="/flash/www")` |
 | Start Web server | `mws.Start(threaded=True)` |
 | Stop Web server | `mws.Stop()` |
+| Set URL location for not found page | `mws.SetNotFoundPageUrl(url=None)` |
 | Get mime type from file extention | `mws.GetMimeTypeFromFilename(filename)` |
 | Get handler function from route | `mws.GetRouteHandler(resUrl, method)` |
 | Escape string to HTML usage | `mws.HTMLEscape(s)` |
@@ -66,6 +67,7 @@ def handlerFunc(httpClient, httpResponse) :
 
 | Name  | Function |
 | - | - |
+| Write switching protocols response | `httpResponse.WriteSwitchProto(upgrade, headers=None)` |
 | Write generic response | `httpResponse.WriteResponse(code, headers, contentType, contentCharset, content)` |
 | Write PyHTML rendered response page | `httpResponse.WriteResponsePyHTMLFile(filepath, headers=None)` |
 | Write file directly as response | `httpResponse.WriteResponseFile(filepath, contentType=None, headers=None)` |
@@ -76,7 +78,7 @@ def handlerFunc(httpClient, httpResponse) :
 | Write error response | `httpResponse.WriteResponseError(code)` |
 | Write JSON object as error response | `httpResponse.WriteResponseJSONError(code, obj=None)` |
 | Write bad request response | `httpResponse.WriteResponseBadRequest()` |
-| Write unauthorized response | `httpResponse.WriteResponseUnauthorized()` |
+| Write forbidden response | `httpResponse.WriteResponseForbidden()` |
 | Write not found response | `httpResponse.WriteResponseNotFound()` |
 | Write method not allowed response | `httpResponse.WriteResponseMethodNotAllowed()` |
 | Write internal server error response | `httpResponse.WriteResponseInternalServerError()` |
