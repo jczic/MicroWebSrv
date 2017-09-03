@@ -499,26 +499,18 @@ class MicroWebSrv :
 
         def WriteResponseFile(self, filepath, contentType=None, headers=None) :
             try :
-                filesize = stat(filepath)[6]
-                if filesize > 0 :
+                size = stat(filepath)[6]
+                if size > 0 :
                     with open(filepath, 'rb') as file :
-                        self._writeBeforeContent(200, headers, contentType, None, filesize)
-                        sizeRead = 0
-                        while True :
-                            retry = 0
-                            while True :
-                                try :
-                                    data = file.read(256)
-                                    break
-                                except :
-                                    retry += 1
-                                    if retry > 30 :
-                                        return False
-                                    sleep_ms(10)
-                            self._write(data)
-                            sizeRead += len(data)
-                            if sizeRead == filesize :
-                                return True
+                        self._writeBeforeContent(200, headers, contentType, None, size)
+                        buf = bytearray(1024)
+                        while size > 0 :
+                            x = file.readinto(buf)
+                            if x < len(buf) :
+                                buf = memoryview(buf)[:x]
+                            self._write(buf)
+                            size -= x
+                    return True
             except :
                 pass
             self.WriteResponseNotFound()

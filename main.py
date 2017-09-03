@@ -1,13 +1,7 @@
 
-from    network     import WLAN
-from    microWebSrv import MicroWebSrv
+from microWebSrv import MicroWebSrv
 
 # ----------------------------------------------------------------------------
-
-wlan = WLAN()
-wlan.init(mode=WLAN.STA)
-wlan.connect( ssid = "JCzic",
-              auth = (WLAN.WPA2, "blah") )
 
 def _httpHandlerTestGet(httpClient, httpResponse) :
 	content = """\
