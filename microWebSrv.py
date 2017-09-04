@@ -126,7 +126,7 @@ class MicroWebSrv :
     # ----------------------------------------------------------------------------
 
     def GetRouteHandler(self, resUrl, method) :
-        if self._routeHandlers is not None :
+        if self._routeHandlers :
             resUrl = resUrl.upper()
             method = method.upper()
             for route in self._routeHandlers :
@@ -230,18 +230,18 @@ class MicroWebSrv :
                 if self._parseFirstLine(response) :
                     if self._parseHeader(response) :
                         upg = self._getConnUpgrade()
-                        if upg is None :
+                        if not upg :
                             routeHandler = self._microWebSrv.GetRouteHandler(self._resPath, self._method)
-                            if routeHandler is not None :
+                            if routeHandler :
                                 routeHandler(self, response)
                             elif self._method.upper() == "GET" :
                                 filepath = self._microWebSrv._physPathFromURLPath(self._resPath)
-                                if filepath is not None :
+                                if filepath :
                                     if self._microWebSrv._isPyHTMLFile(filepath) :
                                         response.WriteResponsePyHTMLFile(filepath)
                                     else :
                                         contentType = self._microWebSrv.GetMimeTypeFromFilename(filepath)
-                                        if contentType is not None :
+                                        if contentType :
                                             response.WriteResponseFile(filepath, contentType)
                                         else :
                                             response.WriteResponseForbidden()
@@ -298,7 +298,7 @@ class MicroWebSrv :
                 elif len(elements) == 1 and len(elements[0]) == 0 :
                     if self._method == 'POST' :
                         self._contentType   = self._headers.get("Content-Type", None)
-                        self._contentLength = self._headers.get("Content-Length", 0)
+                        self._contentLength = int(self._headers.get("Content-Length", 0))
                     return True
                 else :
                     return False
@@ -374,14 +374,16 @@ class MicroWebSrv :
 
         def ReadRequestContent(self, size=None) :
             self._socket.setblocking(False)
-            if size is None :
-                b = self._socket.readall()
-            elif size <= 0 :
-                b = None
-            else :
-                b = self._socket.read(size)
+            b = None
+            try :
+                if not size :
+                    b = self._socket.read(self._contentLength)
+                elif size > 0 :
+                    b = self._socket.read(size)
+            except :
+                pass
             self._socket.setblocking(True)
-            return b if b is not None else b''
+            return b if b else b''
 
         # ------------------------------------------------------------------------
 
@@ -427,9 +429,9 @@ class MicroWebSrv :
         # ------------------------------------------------------------------------
 
         def _writeContentTypeHeader(self, contentType, charset=None) :
-            if contentType is not None :
+            if contentType :
                 ct = contentType \
-                   + (("; charset=%s" % charset) if charset is not None else "")
+                   + (("; charset=%s" % charset) if charset else "")
             else :
                 ct = "application/octet-stream"
             self._writeHeader("Content-Type", ct)
@@ -467,7 +469,7 @@ class MicroWebSrv :
 
         def WriteResponse(self, code, headers, contentType, contentCharset, content) :
             try :
-                contentLength = len(content) if content is not None else 0
+                contentLength = len(content) if content else 0
                 self._writeBeforeContent(code, headers, contentType, contentCharset, contentLength)
                 if contentLength > 0 :
                     self._write(content)
@@ -561,7 +563,7 @@ class MicroWebSrv :
                                        None,
                                        "application/json",
                                        "UTF-8",
-                                       dumps(obj if obj is not None else { }) )
+                                       dumps(obj if obj else { }) )
 
         # ------------------------------------------------------------------------
 
@@ -576,7 +578,7 @@ class MicroWebSrv :
         # ------------------------------------------------------------------------
 
         def WriteResponseNotFound(self) :
-            if self._client._microWebSrv._notFoundUrl is not None :
+            if self._client._microWebSrv._notFoundUrl :
                 self.WriteResponseRedirect(self._client._microWebSrv._notFoundUrl)
             else :
                 return self.WriteResponseError(404)
