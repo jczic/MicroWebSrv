@@ -20,6 +20,7 @@ Simple but effective :
 | Constructor | `mws = MicroWebSrv(routeHandlers=None, port=80, webPath="/flash/www")` |
 | Start Web server | `mws.Start(threaded=True)` |
 | Stop Web server | `mws.Stop()` |
+| Check if Web server is running | `mws.IsStarted()` |
 | Set URL location for not found page | `mws.SetNotFoundPageUrl(url=None)` |
 | Get mime type from file extention | `mws.GetMimeTypeFromFilename(filename)` |
 | Get handler function from route | `mws.GetRouteHandler(resUrl, method)` |

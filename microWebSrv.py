@@ -7,6 +7,7 @@ from    sys         import exc_info
 from    uhashlib    import sha1
 from    ubinascii   import b2a_base64
 import  socket
+import  gc
 
 try :
     from microWebTemplate import MicroWebTemplate
@@ -99,7 +100,7 @@ class MicroWebSrv :
             self._server.bind(self._srvAddr)
             self._server.listen(1)
             if threaded :
-                start_new_thread(self._serverProcess, ())
+                self._tryStartThread(self._serverProcess)
             else :
                 self._serverProcess()
 
@@ -108,6 +109,11 @@ class MicroWebSrv :
     def Stop(self) :
         if self._started :
             self._server.close()
+
+    # ----------------------------------------------------------------------------
+
+    def IsStarted(self) :
+        return self._started
 
     # ----------------------------------------------------------------------------
 
@@ -152,6 +158,29 @@ class MicroWebSrv :
     # ============================================================================
     # ===( Utils  )===============================================================
     # ============================================================================
+
+    def _tryAllocByteArray(self, size) :
+        for x in range(10) :
+            try :
+                gc.collect()
+                return bytearray(size)
+            except :
+                pass
+        return None
+
+    # ----------------------------------------------------------------------------
+
+    def _tryStartThread(self, func, args=()) :
+        for x in range(10) :
+            try :
+                gc.collect()
+                start_new_thread(func, args)
+                return True
+            except :
+                pass
+        return False
+
+    # ----------------------------------------------------------------------------
 
     _hextochr = dict(('%02x' % i, chr(i)) for i in range(256))
 
@@ -505,14 +534,17 @@ class MicroWebSrv :
                 if size > 0 :
                     with open(filepath, 'rb') as file :
                         self._writeBeforeContent(200, headers, contentType, None, size)
-                        buf = bytearray(1024)
-                        while size > 0 :
-                            x = file.readinto(buf)
-                            if x < len(buf) :
-                                buf = memoryview(buf)[:x]
-                            self._write(buf)
-                            size -= x
-                    return True
+                        buf = _tryAllocByteArray(1024)
+                        if buf :
+                            while size > 0 :
+                                x = file.readinto(buf)
+                                if x < len(buf) :
+                                    buf = memoryview(buf)[:x]
+                                self._write(buf)
+                                size -= x
+                            return True
+                        self.WriteResponseInternalServerError()
+                        return False
             except :
                 pass
             self.WriteResponseNotFound()
