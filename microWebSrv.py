@@ -437,7 +437,7 @@ class MicroWebSrv :
         # ------------------------------------------------------------------------
 
         def _write(self, data) :
-            return self._client._socket.send(data)
+            return self._client._socket.write(data)
 
         # ------------------------------------------------------------------------
 
