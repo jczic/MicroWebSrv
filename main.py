@@ -32,7 +32,6 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
 	formData  = httpClient.ReadRequestPostedFormData()
 	firstname = formData["firstname"]
 	lastname  = formData["lastname"]
-	escape    = httpClient.GetServer().HTMLEscape
 	content   = """\
 	<!DOCTYPE html>
 	<html lang=fr>
@@ -46,7 +45,8 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
             Lastname = %s<br />
         </body>
     </html>
-	""" % (escape(firstname), escape(lastname))
+	""" % ( MicroWebSrv.HTMLEscape(firstname),
+		    MicroWebSrv.HTMLEscape(lastname) )
 	httpResponse.WriteResponseOk( headers		 = None,
 								  contentType	 = "text/html",
 								  contentCharset = "UTF-8",

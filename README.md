@@ -24,7 +24,7 @@ Simple but effective :
 | Set URL location for not found page | `mws.SetNotFoundPageUrl(url=None)` |
 | Get mime type from file extention | `mws.GetMimeTypeFromFilename(filename)` |
 | Get handler function from route | `mws.GetRouteHandler(resUrl, method)` |
-| Escape string to HTML usage | `mws.HTMLEscape(s)` |
+| Escape string to HTML usage | `MicroWebSrv.HTMLEscape(s)` |
 
 ### Basic example :
 ```python
@@ -92,7 +92,6 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
   formData  = httpClient.ReadRequestPostedFormData()
   firstname = formData["firstname"]
   lastname  = formData["lastname"]
-  escape    = httpClient.GetServer().HTMLEscape
   content   = """\
   <!DOCTYPE html>
   <html>
@@ -106,7 +105,8 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
       Lastname = %s<br />
     </body>
   </html>
-  """ % (escape(firstname), escape(lastname))
+  """ % ( MicroWebSrv.HTMLEscape(firstname),
+          MicroWebSrv.HTMLEscape(lastname) )
   httpResponse.WriteResponseOk( headers         = None,
                                 contentType     = "text/html",
                                 contentCharset  = "UTF-8",

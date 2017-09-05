@@ -33,31 +33,98 @@ class MicroWebSrv :
         "default.htm"
     ]
 
-    # ----------------------------------------------------------------------------
-
     _mimeTypes = {
-        ".txt"      : "text/plain",
-        ".htm"      : "text/html",
-        ".html"     : "text/html",
-        ".css"      : "text/css",
-        ".csv"      : "text/csv",
-        ".js"       : "application/javascript",
-        ".xml"      : "application/xml",
-        ".xhtml"    : "application/xhtml+xml",
-        ".json"     : "application/json",
-        ".zip"      : "application/zip",
-        ".pdf"      : "application/pdf",
-        ".jpg"      : "image/jpeg",
-        ".jpeg"     : "image/jpeg",
-        ".png"      : "image/png",
-        ".gif"      : "image/gif",
-        ".svg"      : "image/svg+xml",
-        ".ico"      : "image/x-icon"
+        ".txt"   : "text/plain",
+        ".htm"   : "text/html",
+        ".html"  : "text/html",
+        ".css"   : "text/css",
+        ".csv"   : "text/csv",
+        ".js"    : "application/javascript",
+        ".xml"   : "application/xml",
+        ".xhtml" : "application/xhtml+xml",
+        ".json"  : "application/json",
+        ".zip"   : "application/zip",
+        ".pdf"   : "application/pdf",
+        ".jpg"   : "image/jpeg",
+        ".jpeg"  : "image/jpeg",
+        ".png"   : "image/png",
+        ".gif"   : "image/gif",
+        ".svg"   : "image/svg+xml",
+        ".ico"   : "image/x-icon"
     }
 
-    # ----------------------------------------------------------------------------
+    _html_escape_chars = {
+        "&" : "&amp;",
+        '"' : "&quot;",
+        "'" : "&apos;",
+        ">" : "&gt;",
+        "<" : "&lt;"
+    }
 
     _pyhtmlPagesExt = '.pyhtml'
+
+    # ============================================================================
+    # ===( Utils  )===============================================================
+    # ============================================================================
+
+    def HTMLEscape(s) :
+        return ''.join(MicroWebSrv._html_escape_chars.get(c, c) for c in s)
+
+    # ----------------------------------------------------------------------------
+
+    def _tryAllocByteArray(size) :
+        for x in range(10) :
+            try :
+                gc.collect()
+                return bytearray(size)
+            except :
+                pass
+        return None
+
+    # ----------------------------------------------------------------------------
+
+    def _tryStartThread(func, args=()) :
+        for x in range(10) :
+            try :
+                gc.collect()
+                start_new_thread(func, args)
+                return True
+            except :
+                pass
+        return False
+
+    # ----------------------------------------------------------------------------
+
+    _hextochr = dict(('%02x' % i, chr(i)) for i in range(256))
+
+    def _unquote(s) :
+        res = s.split('%')
+        for i in range(1, len(res)):
+            item = res[i]
+            try:
+                res[i] = MicroWebSrv._hextochr[item[:2].lower()] + item[2:]
+            except KeyError:
+                res[i] = '%' + item
+        return "".join(res)
+
+    # ----------------------------------------------------------------------------
+
+    def _unquote_plus(s) :
+        return MicroWebSrv._unquote(s.replace('+', ' '))
+
+    # ----------------------------------------------------------------------------
+
+    def _fileExists(path) :
+        try :
+            stat(path)
+            return True
+        except :
+            return False
+
+    # ----------------------------------------------------------------------------
+
+    def _isPyHTMLFile(filename) :
+        return filename.lower().endswith(MicroWebSrv._pyhtmlPagesExt)
 
     # ============================================================================
     # ===( Constructor )==========================================================
@@ -99,7 +166,7 @@ class MicroWebSrv :
             self._server.bind(self._srvAddr)
             self._server.listen(1)
             if threaded :
-                self._tryStartThread(self._serverProcess)
+                MicroWebSrv._tryStartThread(self._serverProcess)
             else :
                 self._serverProcess()
 
@@ -143,88 +210,17 @@ class MicroWebSrv :
 
     # ----------------------------------------------------------------------------
 
-    def HTMLEscape(self, s) :
-        return ''.join(self._html_escape_chars.get(c, c) for c in s)
-
-    _html_escape_chars = {
-        "&": "&amp;",
-        '"': "&quot;",
-        "'": "&apos;",
-        ">": "&gt;",
-        "<": "&lt;"
-    }
-
-    # ============================================================================
-    # ===( Utils  )===============================================================
-    # ============================================================================
-
-    def _tryAllocByteArray(self, size) :
-        for x in range(10) :
-            try :
-                gc.collect()
-                return bytearray(size)
-            except :
-                pass
-        return None
-
-    # ----------------------------------------------------------------------------
-
-    def _tryStartThread(self, func, args=()) :
-        for x in range(10) :
-            try :
-                gc.collect()
-                start_new_thread(func, args)
-                return True
-            except :
-                pass
-        return False
-
-    # ----------------------------------------------------------------------------
-
-    _hextochr = dict(('%02x' % i, chr(i)) for i in range(256))
-
-    def _unquote(self, s) :
-        res = s.split('%')
-        for i in range(1, len(res)):
-            item = res[i]
-            try:
-                res[i] = self._hextochr[item[:2].lower()] + item[2:]
-            except KeyError:
-                res[i] = '%' + item
-        return "".join(res)
-
-    # ----------------------------------------------------------------------------
-
-    def _unquote_plus(self, s) :
-        return self._unquote(s.replace('+', ' '))
-
-    # ----------------------------------------------------------------------------
-
-    def _fileExists(self, path) :
-        try :
-            stat(path)
-            return True
-        except :
-            return False
-
-    # ----------------------------------------------------------------------------
-
     def _physPathFromURLPath(self, urlPath) :
         if urlPath == '/' :
             for idxPage in self._indexPages :
             	physPath = self._webPath + '/' + idxPage
-            	if self._fileExists(physPath) :
+            	if MicroWebSrv._fileExists(physPath) :
             		return physPath
         else :
             physPath = self._webPath + urlPath
-            if self._fileExists(physPath) :
+            if MicroWebSrv._fileExists(physPath) :
                 return physPath
         return None
-
-    # ----------------------------------------------------------------------------
-
-    def _isPyHTMLFile(self, filename) :
-    	return filename.lower().endswith(self._pyhtmlPagesExt)
 
     # ============================================================================
     # ===( Class Client  )========================================================
@@ -265,7 +261,7 @@ class MicroWebSrv :
                             elif self._method.upper() == "GET" :
                                 filepath = self._microWebSrv._physPathFromURLPath(self._resPath)
                                 if filepath :
-                                    if self._microWebSrv._isPyHTMLFile(filepath) :
+                                    if MicroWebSrv._isPyHTMLFile(filepath) :
                                         response.WriteResponsePyHTMLFile(filepath)
                                     else :
                                         contentType = self._microWebSrv.GetMimeTypeFromFilename(filepath)
@@ -302,15 +298,15 @@ class MicroWebSrv :
                     self._httpVer = elements[2].upper()
                     elements      = self._path.split('?', 1)
                     if len(elements) > 0 :
-                        self._resPath = self._microWebSrv._unquote(elements[0])
+                        self._resPath = MicroWebSrv._unquote(elements[0])
                         if len(elements) > 1 :
                             self._queryString = elements[1]
                             elements = self._queryString.split('&')
                             for s in elements :
                                 param = s.split('=', 1)
                                 if len(param) > 0 :
-                                    value = self._microWebSrv._unquote_plus(param[1]) if len(param) > 1 else ''
-                                    self._queryParams[self._microWebSrv._unquote(param[0])] = value
+                                    value = MicroWebSrv._unquote_plus(param[1]) if len(param) > 1 else ''
+                                    self._queryParams[MicroWebSrv._unquote(param[0])] = value
                     return True
             except :
                 pass
@@ -423,8 +419,8 @@ class MicroWebSrv :
                 for s in elements :
                     param = s.split('=', 1)
                     if len(param) > 0 :
-                        value = self._microWebSrv._unquote_plus(param[1]) if len(param) > 1 else ''
-                        res[self._microWebSrv._unquote(param[0])] = value
+                        value = MicroWebSrv._unquote_plus(param[1]) if len(param) > 1 else ''
+                        res[MicroWebSrv._unquote(param[0])] = value
             return res
         
     # ============================================================================
@@ -511,7 +507,7 @@ class MicroWebSrv :
             if 'MicroWebTemplate' in globals() :
                 with open(filepath, 'r') as file :
                     code = file.read()
-                mWebTmpl = MicroWebTemplate(code, escapeStrFunc=self._client._microWebSrv.HTMLEscape)
+                mWebTmpl = MicroWebTemplate(code, escapeStrFunc=MicroWebSrv.HTMLEscape)
                 try :
                     return self.WriteResponseOk(headers, "text/html", "UTF-8", mWebTmpl.Execute())
                 except :
@@ -533,7 +529,7 @@ class MicroWebSrv :
                 if size > 0 :
                     with open(filepath, 'rb') as file :
                         self._writeBeforeContent(200, headers, contentType, None, size)
-                        buf = self._client._microWebSrv_tryAllocByteArray(1024)
+                        buf = MicroWebSrv._tryAllocByteArray(1024)
                         if buf :
                             while size > 0 :
                                 x = file.readinto(buf)
