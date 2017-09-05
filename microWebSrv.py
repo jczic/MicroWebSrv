@@ -533,7 +533,7 @@ class MicroWebSrv :
                 if size > 0 :
                     with open(filepath, 'rb') as file :
                         self._writeBeforeContent(200, headers, contentType, None, size)
-                        buf = _tryAllocByteArray(1024)
+                        buf = self._client._microWebSrv_tryAllocByteArray(1024)
                         if buf :
                             while size > 0 :
                                 x = file.readinto(buf)
