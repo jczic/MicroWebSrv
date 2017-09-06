@@ -95,17 +95,15 @@ class MicroWebSrv :
 
     # ----------------------------------------------------------------------------
 
-    _hextochr = dict(('%02x' % i, chr(i)) for i in range(256))
-
     def _unquote(s) :
-        res = s.split('%')
-        for i in range(1, len(res)):
-            item = res[i]
-            try:
-                res[i] = MicroWebSrv._hextochr[item[:2].lower()] + item[2:]
-            except KeyError:
-                res[i] = '%' + item
-        return "".join(res)
+        r = s.split('%')
+        for i in range(1, len(r)) :
+            s = r[i]
+            try :
+                r[i] = chr(int(s[:2], 16)) + s[2:]
+            except :
+                r[i] = '%' + s
+        return ''.join(r)
 
     # ----------------------------------------------------------------------------
 
