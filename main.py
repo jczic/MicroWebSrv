@@ -52,12 +52,35 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
 								  contentCharset = "UTF-8",
 								  content 		 = content )
 
+# ----------------------------------------------------------------------------
+
+def _acceptWebSocketCallback(webSocket, httpClient) :
+	print("WS ACCEPT")
+	webSocket.RecvTextCallback   = _recvTextCallback
+	webSocket.RecvBinaryCallback = _recvBinaryCallback
+	webSocket.ClosedCallback 	 = _closedCallback
+
+def _recvTextCallback(webSocket, msg) :
+	print("WS RECV TEXT : %s" % msg)
+	webSocket.SendText("Reply for %s" % msg)
+
+def _recvBinaryCallback(webSocket, data) :
+	print("WS RECV DATA : %s" % data)
+
+def _closedCallback(webSocket) :
+	print("WS CLOSED")
+
+# ----------------------------------------------------------------------------
+
 routeHandlers = [
 	( "/test",	"GET",	_httpHandlerTestGet ),
 	( "/test",	"POST",	_httpHandlerTestPost )
 ]
 
 srv = MicroWebSrv(routeHandlers=routeHandlers)
+srv.MaxWebSocketRecvLen     = 256
+srv.WebSocketThreaded		= False
+srv.AcceptWebSocketCallback = _acceptWebSocketCallback
 srv.Start(threaded=False)
 
 # ----------------------------------------------------------------------------

@@ -135,6 +135,10 @@ class MicroWebSrv :
         self._notFoundUrl   = None
         self._started       = False
 
+        self.MaxWebSocketRecvLen     = 1024
+        self.WebSocketThreaded       = True
+        self.AcceptWebSocketCallback = None
+
     # ============================================================================
     # ===( Server Process )=======================================================
     # ============================================================================
@@ -271,9 +275,15 @@ class MicroWebSrv :
                                     response.WriteResponseNotFound()
                             else :
                                 response.WriteResponseMethodNotAllowed()
-                        elif upg == 'websocket' and 'MicroWebSocket' in globals() :
-                            MicroWebSocket(self._socket, self, response)
-                            return
+                        elif upg == 'websocket' and 'MicroWebSocket' in globals() \
+                             and self._microWebSrv.AcceptWebSocketCallback :
+                                MicroWebSocket( socket         = self._socket,
+                                                httpClient     = self,
+                                                httpResponse   = response,
+                                                maxRecvLen     = self._microWebSrv.MaxWebSocketRecvLen,
+                                                threaded       = self._microWebSrv.WebSocketThreaded,
+                                                acceptCallback = self._microWebSrv.AcceptWebSocketCallback )
+                                return
                         else :
                             response.WriteResponseNotImplemented()
                     else :
