@@ -1,9 +1,10 @@
-# MicroWebSrv & MicroWebTemplate
+# microWebSrv, microWebSocket & microWebTemplate
 
-### A Micro HTTP Web Server and language templating for MicroPython (used on [Pycom](http://www.pycom.io) modules)
+### A micro HTTP Web server that supports WebSockets and html/python language templating, for MicroPython (used on [Pycom](http://www.pycom.io) modules)
 
-Very easy to integrate and very light with 2 files only :
+Very easy to integrate and very light with 3 files only :
 - `"microWebSrv.py"` - The Web server
+- `"microWebSocket.py"` - The optional suppport of WebSockets
 - `"microWebTemplate.py"` - The optional templating language for **.pyhtml** rendered pages
 
 Simple but effective :
@@ -12,6 +13,8 @@ Simple but effective :
 - Exchange in JSON format on HTTP methods to make an embedded fullREST API
 - Serve files on the fly to export any data to the user
 - Play with AjAX to interact speedly with a Web application
+- Use WebSockets for fast and powerful data exchange
+- Make html/python files for rendering more efficient web pages
 
 ### Using *microWebSrv* main class :
 
@@ -24,6 +27,9 @@ Simple but effective :
 | Set URL location for not found page | `mws.SetNotFoundPageUrl(url=None)` |
 | Get mime type from file extention | `mws.GetMimeTypeFromFilename(filename)` |
 | Get handler function from route | `mws.GetRouteHandler(resUrl, method)` |
+| Callback function to enable and accept WebSockets | `mws.AcceptWebSocketCallback(webSocket, httpClient)` |
+| Maximum length of memory allocated to receive WebSockets data (1024 by default) | `mws.MaxWebSocketRecvLen` |
+| New thread used for each WebSocket connection (True by default) | `mws.WebSocketThreaded` |
 | Escape string to HTML usage | `MicroWebSrv.HTMLEscape(s)` |
 
 ### Basic example :
@@ -32,6 +38,7 @@ from microWebSrv import MicroWebSrv
 mws = MicroWebSrv() # TCP port 80 and files in /flash/www
 mws.Start()         # Starts server in a new thread
 ```
+
 ### Using route handlers example :
 ```python
 routeHandlers = [
@@ -146,7 +153,50 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
 | default.html |
 | default.htm |
 
-### Using optional module *microWebTemplate* for *.pyhtml* rendered pages  :
+### Using optional module *microWebSocket* to connect WebSockets :
+
+- File `"microWebSocket.py"` must be present to activate WebSockets support
+
+### Enable and accept WebSockets :
+```python
+from microWebSrv import MicroWebSrv
+mws = MicroWebSrv()                                    # TCP port 80 and files in /flash/www
+mws.MaxWebSocketRecvLen     = 256                      # Default is set to 1024
+mws.WebSocketThreaded       = False                    # WebSockets without new threads
+mws.AcceptWebSocketCallback = _acceptWebSocketCallback # Function to receive WebSockets
+mws.Start()                                            # Starts server in a new thread
+```
+
+| Name  | Function |
+| - | - |
+| Callback function to receive text message | `ws.RecvTextCallback = func(webSocket, msg)` |
+| Callback function to receive binary data | `ws.RecvBinaryCallback = func(webSocket, data)` |
+| Callback function when connection was closed | `ws.ClosedCallback(webSocket)` |
+| Send a text message | `ws.SendText(msg)` |
+| Send a binary message | `ws.SendBinary(data)` |
+| Check connection state | `ws.IsClosed()` |
+| Close the connection | `ws.Close()` |
+
+### Basic example of callback functions :
+```python
+def _acceptWebSocketCallback(webSocket, httpClient) :
+  print("WS ACCEPT")
+  webSocket.RecvTextCallback   = _recvTextCallback
+  webSocket.RecvBinaryCallback = _recvBinaryCallback
+  webSocket.ClosedCallback     = _closedCallback
+
+def _recvTextCallback(webSocket, msg) :
+  print("WS RECV TEXT : %s" % msg)
+  webSocket.SendText("Reply for %s" % msg)
+
+def _recvBinaryCallback(webSocket, data) :
+  print("WS RECV DATA : %s" % data)
+
+def _closedCallback(webSocket) :
+  print("WS CLOSED")
+```
+
+### Using optional module *microWebTemplate* for *.pyhtml* rendered pages :
 
 - File `"microWebTemplate.py"` must be present to activate **.pyhtml** pages
 - Pages will be rendered in HTML with integrated MicroPython code
