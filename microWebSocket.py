@@ -1,6 +1,6 @@
 
-from   uhashlib    import sha1
-from   ubinascii   import b2a_base64
+from   hashlib     import sha1
+from   binascii    import b2a_base64
 from   struct      import pack
 from   _thread     import start_new_thread
 import gc

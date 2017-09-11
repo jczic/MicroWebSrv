@@ -1,9 +1,9 @@
 
-from    ujson       import dumps
-from    uos         import stat
+from    json        import dumps
+from    os          import stat
 from    _thread     import start_new_thread
-from    utime       import sleep_ms
-from    ubinascii   import b2a_base64
+from    time        import sleep_ms
+from    binascii    import b2a_base64
 import  socket
 import  gc
 
