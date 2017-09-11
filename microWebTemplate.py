@@ -1,6 +1,5 @@
 
-from    sys		import exc_info
-import	re
+import re
 
 class MicroWebTemplate :
 
@@ -51,8 +50,8 @@ class MicroWebTemplate :
 		try :
 			self._parseCode(execute=False)
 			return None
-		except :
-			return exc_info()[1]
+		except Exception as ex :
+			return str(ex)
 
 	# ----------------------------------------------------------------------------
 
@@ -60,8 +59,8 @@ class MicroWebTemplate :
 		try :
 			self._parseCode(execute=True)
 			return self._rendered
-		except :
-			raise Exception(exc_info()[1])
+		except Exception as ex :
+			raise Exception(str(ex))
 
     # ============================================================================
     # ===( Utils  )===============================================================
@@ -131,8 +130,8 @@ class MicroWebTemplate :
 					self._rendered += self._escapeStrFunc(s)
 				else :
 					self._rendered += s
-			except :
-				raise Exception('%s (line %s)' % (exc_info()[1], self._line))
+			except Exception as ex :
+				raise Exception('%s (line %s)' % (str(ex), self._line))
 		return newTokenToProcess
 
 	# ----------------------------------------------------------------------------
@@ -192,8 +191,8 @@ class MicroWebTemplate :
 				pyCode += line + '\n'
 			try :
 				exec(pyCode, self._pyGlobalVars, self._pyLocalVars)
-			except :
-				raise Exception('%s (line %s)' % (exc_info()[1], self._line))
+			except Exception as ex :
+				raise Exception('%s (line %s)' % (str(ex), self._line))
 		return None
 
 	# ----------------------------------------------------------------------------
@@ -205,8 +204,8 @@ class MicroWebTemplate :
 					result = eval(instructionBody, self._pyGlobalVars, self._pyLocalVars)
 					if not isinstance(result, bool) :
 						raise Exception('"%s" is not a boolean expression (line %s)' % (instructionBody, self._line))
-				except :
-					raise Exception('%s (line %s)' % (exc_info()[1], self._line))
+				except Exception as ex :
+					raise Exception('%s (line %s)' % (str(ex), self._line))
 			else :
 				result = False
 			newTokenToProcess = self._parseBloc(execute and result)
@@ -265,7 +264,7 @@ class MicroWebTemplate :
 						try :
 							result = eval(expression, self._pyGlobalVars, self._pyLocalVars)
 						except :
-							raise Exception('%s (line %s)' % (exc_info()[1], self._line))
+							raise Exception('%s (line %s)' % (str(ex), self._line))
 					if execute and len(result) > 0 :
 						for x in result :
 							self._pyLocalVars[identifier] = x

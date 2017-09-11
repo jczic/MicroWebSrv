@@ -3,7 +3,6 @@ from    ujson       import dumps
 from    uos         import stat
 from    _thread     import start_new_thread
 from    utime       import sleep_ms
-from    sys         import exc_info
 from    ubinascii   import b2a_base64
 import  socket
 import  gc
@@ -518,14 +517,14 @@ class MicroWebSrv :
                 mWebTmpl = MicroWebTemplate(code, escapeStrFunc=MicroWebSrv.HTMLEscape)
                 try :
                     return self.WriteResponseOk(headers, "text/html", "UTF-8", mWebTmpl.Execute())
-                except :
+                except Exception as ex :
                     return self.WriteResponse( 500,
     	                                       None,
     	                                       "text/html",
     	                                       "UTF-8",
     	                                       self._execErrCtnTmpl % {
     	                                            'module'  : 'PyHTML',
-    	                                            'message' : exc_info()[1]
+    	                                            'message' : str(ex)
     	                                       } )
             return self.WriteResponseNotImplemented()
 

@@ -3,7 +3,6 @@ from   uhashlib    import sha1
 from   ubinascii   import b2a_base64
 from   struct      import pack
 from   _thread     import start_new_thread
-from   sys         import exc_info
 import gc
 
 class MicroWebSocket :
@@ -101,16 +100,16 @@ class MicroWebSocket :
         self._closed = False
         try :
             acceptCallback(self, self._httpCli)
-        except :
-            print("MicroWebSocket : Error on accept callback (%s)." % exc_info()[1])
+        except Exception as ex :
+            print("MicroWebSocket : Error on accept callback (%s)." % str(ex))
         while not self._closed :
             if not self._receiveFrame() :
                 self.Close()
         if self.ClosedCallback :
             try :
                 self.ClosedCallback(self)
-            except :
-                print("MicroWebSocket : Error on closed callback (%s)." % exc_info()[1])
+            except Exception as ex :
+                print("MicroWebSocket : Error on closed callback (%s)." % str(ex))
 
     # ----------------------------------------------------------------------------
 
@@ -166,14 +165,14 @@ class MicroWebSocket :
                             if self.RecvTextCallback :
                                 try :
                                     self.RecvTextCallback(self, b.decode())
-                                except :
-                                    print("MicroWebSocket : Error on recv text callback (%s)." % exc_info()[1])
+                                except Exception as ex :
+                                    print("MicroWebSocket : Error on recv text callback (%s)." % str(ex))
                         else :
                             if self.RecvBinaryCallback :
                                 try :
                                     self.RecvBinaryCallback(self, b)
-                                except :
-                                    print("MicroWebSocket : Error on recv binary callback (%s)." % exc_info()[1])
+                                except Exception as ex :
+                                    print("MicroWebSocket : Error on recv binary callback (%s)." % str(ex))
                         self._msgType = None
                         self._msgLen  = 0
                 else :
