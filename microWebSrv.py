@@ -338,7 +338,7 @@ class MicroWebSrv :
         # ------------------------------------------------------------------------
 
         def _getConnUpgrade(self) :
-            if self._headers.get('Connection', '').lower() == 'upgrade' :
+            if 'upgrade' in self._headers.get('Connection', '').lower() :
                 return self._headers.get('Upgrade', '').lower()
             return None
 
