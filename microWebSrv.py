@@ -127,9 +127,13 @@ class MicroWebSrv :
     # ===( Constructor )==========================================================
     # ============================================================================
 
-    def __init__(self, routeHandlers=None, port=80, webPath="/flash/www") :
+    def __init__( self,
+                  routeHandlers = None,
+                  port          = 80,
+                  bindIP        = '0.0.0.0',
+                  webPath       = "/flash/www" ) :
         self._routeHandlers = routeHandlers
-        self._srvAddr       = ('0.0.0.0', port)
+        self._srvAddr       = (bindIP, port)
         self._webPath       = webPath
         self._notFoundUrl   = None
         self._started       = False
