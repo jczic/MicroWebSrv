@@ -309,14 +309,14 @@ class MicroWebSrv :
                     self._httpVer = elements[2].upper()
                     elements      = self._path.split('?', 1)
                     if len(elements) > 0 :
-                        self._resPath = MicroWebSrv._unquote(elements[0])
+                        self._resPath = MicroWebSrv._unquote_plus(elements[0])
                         if len(elements) > 1 :
                             self._queryString = elements[1]
                             elements = self._queryString.split('&')
                             for s in elements :
                                 param = s.split('=', 1)
                                 if len(param) > 0 :
-                                    value = MicroWebSrv._unquote_plus(param[1]) if len(param) > 1 else ''
+                                    value = MicroWebSrv._unquote(param[1]) if len(param) > 1 else ''
                                     self._queryParams[MicroWebSrv._unquote(param[0])] = value
                     return True
             except :
@@ -430,7 +430,7 @@ class MicroWebSrv :
                 for s in elements :
                     param = s.split('=', 1)
                     if len(param) > 0 :
-                        value = MicroWebSrv._unquote_plus(param[1]) if len(param) > 1 else ''
+                        value = MicroWebSrv._unquote(param[1]) if len(param) > 1 else ''
                         res[MicroWebSrv._unquote(param[0])] = value
             return res
         
