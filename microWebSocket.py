@@ -66,7 +66,7 @@ class MicroWebSocket :
                 self._msgType = None
                 self._msgLen  = 0
                 if threaded :
-                    if MicroWebSocket._tryStartThread(self._wsProcess, (acceptCallback)) :
+                    if MicroWebSocket._tryStartThread(self._wsProcess, (acceptCallback, )) :
                         return
                 else :
                     self._wsProcess(acceptCallback)

@@ -2,8 +2,6 @@
 from    json        import dumps
 from    os          import stat
 from    _thread     import start_new_thread
-from    time        import sleep_ms
-from    binascii    import b2a_base64
 import  socket
 import  gc
 
@@ -302,7 +300,7 @@ class MicroWebSrv :
 
         def _parseFirstLine(self, response) :
             try :
-                elements = self._socket.readline().decode().split()
+                elements = self._socket.readline().decode().strip().split()
                 if len(elements) == 3 :
                     self._method  = elements[0].upper()
                     self._path    = elements[1]
