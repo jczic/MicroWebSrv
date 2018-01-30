@@ -1,3 +1,7 @@
+"""
+The MIT License (MIT)
+Copyright © 2018 Jean-Christophe Bos & HC² (www.hc2.fr)
+"""
 
 from    json        import dumps
 from    os          import stat
@@ -87,7 +91,16 @@ class MicroWebSrv :
                 start_new_thread(func, args)
                 return True
             except :
-                pass
+                global _mwsrv_thread_id
+                try :
+                    _mwsrv_thread_id += 1
+                except :
+                    _mwsrv_thread_id = 0
+                try :
+                    start_new_thread('MWSRV_THREAD_%s' % _mwsrv_thread_id, func, args)
+                    return True
+                except :
+                    pass
         return False
 
     # ----------------------------------------------------------------------------

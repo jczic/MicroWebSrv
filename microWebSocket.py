@@ -1,3 +1,7 @@
+"""
+The MIT License (MIT)
+Copyright © 2018 Jean-Christophe Bos & HC² (www.hc2.fr)
+"""
 
 from   hashlib     import sha1
 from   binascii    import b2a_base64
@@ -45,7 +49,16 @@ class MicroWebSocket :
                 start_new_thread(func, args)
                 return True
             except :
-                pass
+                global _mws_thread_id
+                try :
+                    _mws_thread_id += 1
+                except :
+                    _mws_thread_id = 0
+                try :
+                    start_new_thread('MWS_THREAD_%s' % _mws_thread_id, func, args)
+                    return True
+                except :
+                    pass
         return False
 
     # ============================================================================
