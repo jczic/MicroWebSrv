@@ -268,7 +268,7 @@ class MicroWebTemplate :
 						try :
 							result = eval(expression, self._pyGlobalVars, self._pyLocalVars)
 						except :
-							raise Exception('%s (line %s)' % (str(ex), self._line))
+							raise Exception('%s (line %s)' % (str(expression), self._line))
 					if execute and len(result) > 0 :
 						for x in result :
 							self._pyLocalVars[identifier] = x
