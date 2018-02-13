@@ -65,8 +65,25 @@ class MicroWebSrv :
     _pyhtmlPagesExt = '.pyhtml'
 
     # ============================================================================
+    # ===( Class globals  )=======================================================
+    # ============================================================================
+
+    _docoratedRouteHandlers = []
+
+    # ============================================================================
     # ===( Utils  )===============================================================
     # ============================================================================
+
+    @classmethod
+    def route(cls, url, method='GET'):
+        """ Adds a route handler function to the routing list """
+        def route_decorator(func):
+            item = (url, method, func)
+            cls._docoratedRouteHandlers.append(item)
+            return func
+        return route_decorator
+
+    # ----------------------------------------------------------------------------
 
     def HTMLEscape(s) :
         return ''.join(MicroWebSrv._html_escape_chars.get(c, c) for c in s)
@@ -143,7 +160,10 @@ class MicroWebSrv :
                   port          = 80,
                   bindIP        = '0.0.0.0',
                   webPath       = "/flash/www" ) :
-        self._routeHandlers = routeHandlers
+        
+        self._routeHandlers = self._docoratedRouteHandlers
+        if routeHandlers:
+            self._routeHandlers.append(routeHandlers)
         self._srvAddr       = (bindIP, port)
         self._webPath       = webPath
         self._notFoundUrl   = None
