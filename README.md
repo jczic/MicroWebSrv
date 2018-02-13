@@ -52,6 +52,17 @@ def handlerFunc(httpClient, httpResponse) :
   pass
 ```
 
+### Or using directly route handlers decorators :
+```python
+@MicroWebSrv.route('/get-test')
+def handlerFuncGet(httpClient, httpResponse) :
+  pass
+
+@MicroWebSrv.route('/post-test', 'POST')
+def handlerFuncPost(httpClient, httpResponse) :
+  pass
+```
+
 ### Using *httpClient* class in a route handler function :
 
 | Name  | Function |
