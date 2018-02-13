@@ -3,6 +3,7 @@ from microWebSrv import MicroWebSrv
 
 # ----------------------------------------------------------------------------
 
+@MicroWebSrv.route('/test')
 def _httpHandlerTestGet(httpClient, httpResponse) :
 	content = """\
 	<!DOCTYPE html>
@@ -28,6 +29,7 @@ def _httpHandlerTestGet(httpClient, httpResponse) :
 								  contentCharset = "UTF-8",
 								  content 		 = content )
 
+@MicroWebSrv.route('/test', 'POST')
 def _httpHandlerTestPost(httpClient, httpResponse) :
 	formData  = httpClient.ReadRequestPostedFormData()
 	firstname = formData["firstname"]
@@ -72,12 +74,12 @@ def _closedCallback(webSocket) :
 
 # ----------------------------------------------------------------------------
 
-routeHandlers = [
-	( "/test",	"GET",	_httpHandlerTestGet ),
-	( "/test",	"POST",	_httpHandlerTestPost )
-]
+#routeHandlers = [
+#	( "/test",	"GET",	_httpHandlerTestGet ),
+#	( "/test",	"POST",	_httpHandlerTestPost )
+#]
 
-srv = MicroWebSrv(routeHandlers=routeHandlers)
+srv = MicroWebSrv(webPath='www/')
 srv.MaxWebSocketRecvLen     = 256
 srv.WebSocketThreaded		= False
 srv.AcceptWebSocketCallback = _acceptWebSocketCallback
