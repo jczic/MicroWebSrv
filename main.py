@@ -7,7 +7,7 @@ from microWebSrv import MicroWebSrv
 def _httpHandlerTestGet(httpClient, httpResponse) :
 	content = """\
 	<!DOCTYPE html>
-	<html lang=fr>
+	<html lang=en>
         <head>
         	<meta charset="UTF-8" />
             <title>TEST GET</title>
@@ -29,6 +29,7 @@ def _httpHandlerTestGet(httpClient, httpResponse) :
 								  contentCharset = "UTF-8",
 								  content 		 = content )
 
+
 @MicroWebSrv.route('/test', 'POST')
 def _httpHandlerTestPost(httpClient, httpResponse) :
 	formData  = httpClient.ReadRequestPostedFormData()
@@ -36,7 +37,7 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
 	lastname  = formData["lastname"]
 	content   = """\
 	<!DOCTYPE html>
-	<html lang=fr>
+	<html lang=en>
 		<head>
 			<meta charset="UTF-8" />
             <title>TEST POST</title>
@@ -49,6 +50,28 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
     </html>
 	""" % ( MicroWebSrv.HTMLEscape(firstname),
 		    MicroWebSrv.HTMLEscape(lastname) )
+	httpResponse.WriteResponseOk( headers		 = None,
+								  contentType	 = "text/html",
+								  contentCharset = "UTF-8",
+								  content 		 = content )
+
+
+@MicroWebSrv.route('/edit/#')       # <IP>/edit/123       ->   index='123'
+@MicroWebSrv.route('/edit/#/abc')   # <IP>/edit/123/abc   ->   index='123'
+@MicroWebSrv.route('/edit')         # <IP>/edit           ->   index='default'
+def _httpHandlerEditVariable(httpClient, httpResponse, index='default') :
+	content = """\
+	<!DOCTYPE html>
+	<html lang=en>
+        <head>
+        	<meta charset="UTF-8" />
+            <title>TEST EDIT</title>
+        </head>
+        <body>
+            <h1>EDIT item with index '%s'</h1>
+        </body>
+    </html>
+	""" % index
 	httpResponse.WriteResponseOk( headers		 = None,
 								  contentType	 = "text/html",
 								  contentCharset = "UTF-8",

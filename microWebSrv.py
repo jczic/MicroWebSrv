@@ -236,13 +236,22 @@ class MicroWebSrv :
     def GetRouteHandler(self, resUrl, method) :
         if self._routeHandlers :
             resUrl = resUrl.upper()
+            if resUrl.endswith('/') :
+                resUrl = resUrl[:-1]
             method = method.upper()
             for route in self._routeHandlers :
-                if len(route) == 3 and            \
-                   route[0].upper() == resUrl and \
-                   route[1].upper() == method :
-                   return route[2]
-        return None
+                if len(route) == 3 and route[1].upper() == method :
+                    url = route[0].upper()
+                    if '#' in url:
+                        urlStart, urlEnd = url.split('#', 1)
+                        if resUrl.startswith(urlStart) and resUrl.endswith(urlEnd) :
+                            routeVariable = resUrl[len(urlStart): len(resUrl)-len(urlEnd)]
+                            if '/' not in routeVariable :
+                                return (route[2], routeVariable)
+                    else:
+                        if url == resUrl :
+                            return (route[2], None)
+        return (None, None)
 
     # ----------------------------------------------------------------------------
 
@@ -291,9 +300,12 @@ class MicroWebSrv :
                     if self._parseHeader(response) :
                         upg = self._getConnUpgrade()
                         if not upg :
-                            routeHandler = self._microWebSrv.GetRouteHandler(self._resPath, self._method)
+                            routeHandler, routeVariable = self._microWebSrv.GetRouteHandler(self._resPath, self._method)
                             if routeHandler :
-                                routeHandler(self, response)
+                                if routeVariable is not None:
+                                    routeHandler(self, response, routeVariable)
+                                else:
+                                    routeHandler(self, response)
                             elif self._method.upper() == "GET" :
                                 filepath = self._microWebSrv._physPathFromURLPath(self._resPath)
                                 if filepath :
