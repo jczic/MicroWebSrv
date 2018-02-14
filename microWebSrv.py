@@ -244,13 +244,22 @@ class MicroWebSrv :
     def GetRouteHandler(self, resUrl, method) :
         if self._routeHandlers :
             resUrl = resUrl.upper()
+            if resUrl.endswith('/') :
+                resUrl = resUrl[:-1]
             method = method.upper()
             for route in self._routeHandlers :
-                if len(route) == 3 and            \
-                   route[0].upper() == resUrl and \
-                   route[1].upper() == method :
-                   return route[2]
-        return None
+                if len(route) == 3 and route[1].upper() == method :
+                    url = route[0].upper()
+                    if '#' in url:
+                        urlStart, urlEnd = url.split('#', 1)
+                        if resUrl.startswith(urlStart) and resUrl.endswith(urlEnd) :
+                            routeVariable = resUrl[len(urlStart): len(resUrl)-len(urlEnd)]
+                            if '/' not in routeVariable :
+                                return (route[2], routeVariable)
+                    else:
+                        if url == resUrl :
+                            return (route[2], None)
+        return (None, None)
 
     # ----------------------------------------------------------------------------
 
@@ -289,11 +298,10 @@ class MicroWebSrv :
             self._contentType   = None
             self._contentLength = 0
             
-            if hasattr(socket, 'readline'):
+            if hasattr(socket, 'readline'):   # MicroPython
                 self._socketfile = self._socket
-            else:
-                file = self._socket.makefile('rwb')
-                self._socketfile = file
+            else:   # CPython
+                self._socketfile = self._socket.makefile('rwb')
                         
             self._processRequest()
 
@@ -306,9 +314,12 @@ class MicroWebSrv :
                     if self._parseHeader(response) :
                         upg = self._getConnUpgrade()
                         if not upg :
-                            routeHandler = self._microWebSrv.GetRouteHandler(self._resPath, self._method)
+                            routeHandler, routeVariable = self._microWebSrv.GetRouteHandler(self._resPath, self._method)
                             if routeHandler :
-                                routeHandler(self, response)
+                                if routeVariable is not None:
+                                    routeHandler(self, response, routeVariable)
+                                else:
+                                    routeHandler(self, response)
                             elif self._method.upper() == "GET" :
                                 filepath = self._microWebSrv._physPathFromURLPath(self._resPath)
                                 if filepath :
@@ -538,7 +549,7 @@ class MicroWebSrv :
                 self._writeHeader("Content-Length", contentLength)
             self._writeHeader("Server", "MicroWebSrv by JC`zic")
             self._writeHeader("Connection", "close")
-            self._writeEndHeader()        
+            self._writeEndHeader()
 
         # ------------------------------------------------------------------------
 
@@ -549,6 +560,8 @@ class MicroWebSrv :
             if isinstance(headers, dict) :
                 for header in headers :
                     self._writeHeader(header, headers[header])
+            if self._client._socketfile is not self._client._socket :
+                self._client._socketfile.flush()   # CPython needs flush to continue protocol
 
         # ------------------------------------------------------------------------
 

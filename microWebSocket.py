@@ -75,11 +75,10 @@ class MicroWebSocket :
         self.RecvBinaryCallback = None
         self.ClosedCallback     = None
 
-        if hasattr(socket, 'readline'):
+        if hasattr(socket, 'read'):   # MicroPython
             self._socketfile = self._socket
-        else:
-            file = self._socket.makefile('rwb')
-            self._socketfile = file
+        else:   # CPython
+            self._socketfile = self._socket.makefile('rwb')
 
         if self._handshake(httpResponse) :
             self._ctrlBuf = MicroWebSocket._tryAllocByteArray(0x7D)
@@ -95,6 +94,8 @@ class MicroWebSocket :
                     return
             print("MicroWebSocket : Out of memory on new WebSocket connection.")
         try :
+            if self._socketfile is not self._socket:
+                self._socketfile.close()
             self._socket.close()
         except :
             pass
@@ -139,7 +140,6 @@ class MicroWebSocket :
     def _receiveFrame(self) :
         try :
             b = self._socketfile.read(2)
-            #b = self._socket.recv(2)
             if not b or len(b) != 2 :
                 return False
 
@@ -175,7 +175,8 @@ class MicroWebSocket :
                     buf = memoryview(self._msgBuf)[self._msgLen:]
                     if length > len(buf) :
                         return False
-                    if self._socketfile.readinto(buf, length) != length :
+                    x = self._socketfile.readinto(buf[0:length])
+                    if x != length :
                         return False
                     if masked :
                         for i in range(length) :
@@ -206,7 +207,8 @@ class MicroWebSocket :
                 if length > len(self._ctrlBuf) :
                     return False
                 if length > 0 :
-                    if self._socketfile.readinto(self._ctrlBuf, length) != length :
+                    x = self._socketfile.readinto(self._ctrlBuf[0:length])
+                    if x != length :
                         return False
                     pingData = memoryview(self._ctrlBuf)[:length]
                 else :
@@ -234,9 +236,12 @@ class MicroWebSocket :
                         if dataLen > 0 :
                             if dataLen >= 0x7E :
                                 self._socketfile.write(pack('>H', dataLen))
-                            return self._socketfile.write(data) == dataLen
+                            ret = self._socketfile.write(data) == dataLen
                         else :
-                            return True
+                            ret = True
+                        if self._socketfile is not self._socket :
+                            self._socketfile.flush()   # CPython needs flush to continue protocol
+                        return ret
                 except :
                     pass
         return False
