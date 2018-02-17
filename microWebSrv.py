@@ -581,7 +581,7 @@ class MicroWebSrv :
             if 'MicroWebTemplate' in globals() :
                 with open(filepath, 'r') as file :
                     code = file.read()
-                mWebTmpl = MicroWebTemplate(code, escapeStrFunc=MicroWebSrv.HTMLEscape)
+                mWebTmpl = MicroWebTemplate(code, escapeStrFunc=MicroWebSrv.HTMLEscape, filepath=filepath)
                 try :
                     return self.WriteResponseOk(headers, "text/html", "UTF-8", mWebTmpl.Execute())
                 except Exception as ex :
