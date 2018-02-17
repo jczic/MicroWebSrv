@@ -88,7 +88,7 @@ class MicroWebTemplate :
 		while self._pos <= self._endPos :
 			c = self._code[self._pos]
 			if c == MicroWebTemplate.TOKEN_OPEN[0] and \
-				self._code[ self._pos : self._pos + MicroWebTemplate.TOKEN_OPEN_LEN ] == MicroWebTemplate.TOKEN_OPEN :
+			    self._code[ self._pos : self._pos + MicroWebTemplate.TOKEN_OPEN_LEN ] == MicroWebTemplate.TOKEN_OPEN :
 				self._pos    += MicroWebTemplate.TOKEN_OPEN_LEN
 				tokenContent  = ''
 				x 			  = self._pos
