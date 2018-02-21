@@ -9,6 +9,8 @@ from    os          import stat
 from    _thread     import start_new_thread
 import  socket
 import  gc
+import  collections
+import  re
 
 try :
     from microWebTemplate import MicroWebTemplate
@@ -164,14 +166,11 @@ class MicroWebSrv :
     # ============================================================================
 
     def __init__( self,
-                  routeHandlers = None,
+                  routeHandlers = [],
                   port          = 80,
                   bindIP        = '0.0.0.0',
                   webPath       = "/flash/www" ) :
 
-        self._routeHandlers = self._docoratedRouteHandlers
-        if routeHandlers:
-            self._routeHandlers.append(routeHandlers)
         self._srvAddr       = (bindIP, port)
         self._webPath       = webPath
         self._notFoundUrl   = None
@@ -180,6 +179,26 @@ class MicroWebSrv :
         self.MaxWebSocketRecvLen     = 1024
         self.WebSocketThreaded       = True
         self.AcceptWebSocketCallback = None
+
+        routeHandlersCls = collections.namedtuple('routeHandlers', 'route method func routeArgNames routeRegex')
+        self._routeHandlers = []
+        routeHandlers += self._docoratedRouteHandlers
+        for route, method, func in routeHandlers :
+            routeParts = route.split('/')
+            # -> ['', 'users', '<uID>', 'addresses', '<addrID>', 'test', '<anotherID>']
+            routeArgNames = []
+            routeRegex    = ''
+            for s in routeParts :
+                if s.startswith('<') and s.endswith('>') :
+                    routeArgNames.append(s[1:-1])
+                    routeRegex += '/(\\w*)'
+                elif s :
+                    routeRegex += '/' + s
+            routeRegex += '$'
+            # -> '/users/(\w*)/addresses/(\w*)/test/(\w*)$'
+            routeRegex = re.compile(routeRegex)
+
+            self._routeHandlers.append(routeHandlersCls(route, method, func, routeArgNames, routeRegex))
 
     # ============================================================================
     # ===( Server Process )=======================================================
@@ -240,25 +259,31 @@ class MicroWebSrv :
         return None
 
     # ----------------------------------------------------------------------------
-
+    
     def GetRouteHandler(self, resUrl, method) :
         if self._routeHandlers :
-            resUrl = resUrl.upper()
+            #resUrl = resUrl.upper()
             if resUrl.endswith('/') :
                 resUrl = resUrl[:-1]
             method = method.upper()
-            for route in self._routeHandlers :
-                if len(route) == 3 and route[1].upper() == method :
-                    url = route[0].upper()
-                    if '#' in url:
-                        urlStart, urlEnd = url.split('#', 1)
-                        if resUrl.startswith(urlStart) and resUrl.endswith(urlEnd) :
-                            routeVariable = resUrl[len(urlStart): len(resUrl)-len(urlEnd)]
-                            if '/' not in routeVariable :
-                                return (route[2], routeVariable)
-                    else:
-                        if url == resUrl :
-                            return (route[2], None)
+            for rh in self._routeHandlers :
+                if len(rh) == 5 and rh.method == method :
+                    m = rh.routeRegex.match(resUrl)
+                    if m :   # found matching route?
+                        if rh.routeArgNames :
+                            routeArgValues = []
+                            for i in range(len(rh.routeArgNames)) :
+                                value = m.group(i+1)
+                                try :
+                                    value = int(value)
+                                except :
+                                    pass
+                                routeArgValues.append(value)
+                            routeArgCls = collections.namedtuple('routeArg', rh.routeArgNames)
+                            routeArgs = routeArgCls(*routeArgValues)
+                            return (rh.func, routeArgs)
+                        else :
+                            return (rh.func, None)
         return (None, None)
 
     # ----------------------------------------------------------------------------
@@ -314,10 +339,10 @@ class MicroWebSrv :
                     if self._parseHeader(response) :
                         upg = self._getConnUpgrade()
                         if not upg :
-                            routeHandler, routeVariable = self._microWebSrv.GetRouteHandler(self._resPath, self._method)
+                            routeHandler, routeArgs = self._microWebSrv.GetRouteHandler(self._resPath, self._method)
                             if routeHandler :
-                                if routeVariable is not None:
-                                    routeHandler(self, response, routeVariable)
+                                if routeArgs is not None:
+                                    routeHandler(self, response, routeArgs)
                                 else:
                                     routeHandler(self, response)
                             elif self._method.upper() == "GET" :
