@@ -8,7 +8,6 @@ from    os          import stat
 from    _thread     import start_new_thread
 import  socket
 import  gc
-import  collections
 import  re
 
 try :
@@ -20,6 +19,15 @@ try :
     from microWebSocket import MicroWebSocket
 except :
     pass
+
+class MicroWebSrvRoute :
+    def __init__(self, route, method, func, routeArgNames, routeRegex) :
+        self.route         = route        
+        self.method        = method       
+        self.func          = func         
+        self.routeArgNames = routeArgNames
+        self.routeRegex    = routeRegex   
+
 
 class MicroWebSrv :
 
@@ -172,7 +180,6 @@ class MicroWebSrv :
         self.WebSocketThreaded       = True
         self.AcceptWebSocketCallback = None
 
-        routeHandlersCls = collections.namedtuple('routeHandlers', 'route method func routeArgNames routeRegex')
         self._routeHandlers = []
         routeHandlers += self._docoratedRouteHandlers
         for route, method, func in routeHandlers :
@@ -190,7 +197,7 @@ class MicroWebSrv :
             # -> '/users/(\w*)/addresses/(\w*)/test/(\w*)$'
             routeRegex = re.compile(routeRegex)
 
-            self._routeHandlers.append(routeHandlersCls(route, method, func, routeArgNames, routeRegex))
+            self._routeHandlers.append(MicroWebSrvRoute(route, method, func, routeArgNames, routeRegex))
 
     # ============================================================================
     # ===( Server Process )=======================================================
@@ -259,20 +266,18 @@ class MicroWebSrv :
                 resUrl = resUrl[:-1]
             method = method.upper()
             for rh in self._routeHandlers :
-                if len(rh) == 5 and rh.method == method :
+                if rh.method == method :
                     m = rh.routeRegex.match(resUrl)
                     if m :   # found matching route?
                         if rh.routeArgNames :
-                            routeArgValues = []
-                            for i in range(len(rh.routeArgNames)) :
+                            routeArgs = {}
+                            for i, name in enumerate(rh.routeArgNames) :
                                 value = m.group(i+1)
                                 try :
                                     value = int(value)
                                 except :
                                     pass
-                                routeArgValues.append(value)
-                            routeArgCls = collections.namedtuple('routeArg', rh.routeArgNames)
-                            routeArgs = routeArgCls(*routeArgValues)
+                                routeArgs[name] = value
                             return (rh.func, routeArgs)
                         else :
                             return (rh.func, None)

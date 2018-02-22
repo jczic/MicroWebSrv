@@ -56,10 +56,10 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
 								  content 		 = content )
 
 
-@MicroWebSrv.route('/edit/<index>')             # <IP>/edit/123           ->   args.index=123
-@MicroWebSrv.route('/edit/<index>/abc/<foo>')   # <IP>/edit/123/abc/bar   ->   args.index=123  args.foo='bar'
-@MicroWebSrv.route('/edit')                     # <IP>/edit               ->   args=None
-def _httpHandlerEditWithArgs(httpClient, httpResponse, args=None) :
+@MicroWebSrv.route('/edit/<index>')             # <IP>/edit/123           ->   args['index']=123
+@MicroWebSrv.route('/edit/<index>/abc/<foo>')   # <IP>/edit/123/abc/bar   ->   args['index']=123  args['foo']='bar'
+@MicroWebSrv.route('/edit')                     # <IP>/edit               ->   args={}
+def _httpHandlerEditWithArgs(httpClient, httpResponse, args={}) :
 	content = """\
 	<!DOCTYPE html>
 	<html lang=en>
@@ -68,10 +68,20 @@ def _httpHandlerEditWithArgs(httpClient, httpResponse, args=None) :
             <title>TEST EDIT</title>
         </head>
         <body>
-            <h1>EDIT item with {} arguments and index = {}</h1>
+	"""
+	content += "<h1>EDIT item with {} variable arguments</h1>"\
+		.format(len(args))
+	
+	if 'index' in args :
+		content += "<p>index = {}</p>".format(args['index'])
+	
+	if 'foo' in args :
+		content += "<p>foo = {}</p>".format(args['foo'])
+	
+	content += """
         </body>
     </html>
-	""".format(len(args) if args else 'no', args.index if args else 'default')
+	"""
 	httpResponse.WriteResponseOk( headers		 = None,
 								  contentType	 = "text/html",
 								  contentCharset = "UTF-8",
