@@ -46,7 +46,7 @@ mws.Start()         # Starts server in a new thread
 # To intercept all not found queries and redirect it,
 mws.SetNotFoundPageUrl("http://my-device.wifi")
 ```
-Can be used with [MicroDNSSrv](https://github.com/jczic/MicroDNSSrv) easily.
+- Can be used with [MicroDNSSrv](https://github.com/jczic/MicroDNSSrv) easily.
 
 ### Using route handlers example :
 ```python
