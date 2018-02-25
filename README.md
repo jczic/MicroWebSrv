@@ -42,25 +42,50 @@ mws.Start()         # Starts server in a new thread
 ### Using route handlers example :
 ```python
 routeHandlers = [
-	( "relative_url_1", "METHOD", handlerFunc_1 ),
-	( "relative_url_2", "METHOD", handlerFunc_2 ),
+	( "relative_url_route_1", "METHOD", handlerFunc_1 ),
+	( "relative_url_route_2", "METHOD", handlerFunc_2 ),
   ( ... )
 ]
 ```
 ```python
-def handlerFunc(httpClient, httpResponse) :
-  pass
+def handlerFunc_1(httpClient, httpResponse, routeArgs) :
+  print("In HTTP handler 1")
+
+def handlerFunc_2(httpClient, httpResponse, routeArgs) :
+  print("In HTTP handler 2")
 ```
 
-### Or using directly route handlers decorators :
+### Using directly route handlers decorators example :
 ```python
 @MicroWebSrv.route('/get-test')
-def handlerFuncGet(httpClient, httpResponse) :
-  pass
+def handlerFuncGet(httpClient, httpResponse, routeArgs) :
+  print("In GET-TEST HTTP")
 
 @MicroWebSrv.route('/post-test', 'POST')
-def handlerFuncPost(httpClient, httpResponse) :
-  pass
+def handlerFuncPost(httpClient, httpResponse, routeArgs) :
+  print("In POST-TEST HTTP")
+```
+
+### Using variable routes example :
+```python
+routeHandlers = [
+	( "/edit/<testid>/<testpath>", "GET", handlerFuncEdit ),
+  ( ... )
+]
+def handlerFuncEdit(httpClient, httpResponse, routeArgs) :
+  print("In EDIT HTTP variable route :")
+  print(" - testid   = %s" % routeArgs['testid'])
+  print(" - testpath = %s" % routeArgs['testpath'])
+```
+
+Or with route handler decorator direclty :
+
+```python
+@MicroWebSrv.route('/edit/<testid>/<testpath>')
+def handlerFuncEdit(httpClient, httpResponse, routeArgs) :
+  print("In EDIT HTTP variable route :")
+  print(" - testid   = %s" % routeArgs['testid'])
+  print(" - testpath = %s" % routeArgs['testpath'])
 ```
 
 ### Using *httpClient* class in a route handler function :
