@@ -7,7 +7,7 @@ from microWebSrv import MicroWebSrv
 def _httpHandlerTestGet(httpClient, httpResponse) :
 	content = """\
 	<!DOCTYPE html>
-	<html lang=fr>
+	<html lang=en>
         <head>
         	<meta charset="UTF-8" />
             <title>TEST GET</title>
@@ -29,6 +29,7 @@ def _httpHandlerTestGet(httpClient, httpResponse) :
 								  contentCharset = "UTF-8",
 								  content 		 = content )
 
+
 @MicroWebSrv.route('/test', 'POST')
 def _httpHandlerTestPost(httpClient, httpResponse) :
 	formData  = httpClient.ReadRequestPostedFormData()
@@ -36,7 +37,7 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
 	lastname  = formData["lastname"]
 	content   = """\
 	<!DOCTYPE html>
-	<html lang=fr>
+	<html lang=en>
 		<head>
 			<meta charset="UTF-8" />
             <title>TEST POST</title>
@@ -49,6 +50,38 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
     </html>
 	""" % ( MicroWebSrv.HTMLEscape(firstname),
 		    MicroWebSrv.HTMLEscape(lastname) )
+	httpResponse.WriteResponseOk( headers		 = None,
+								  contentType	 = "text/html",
+								  contentCharset = "UTF-8",
+								  content 		 = content )
+
+
+@MicroWebSrv.route('/edit/<index>')             # <IP>/edit/123           ->   args['index']=123
+@MicroWebSrv.route('/edit/<index>/abc/<foo>')   # <IP>/edit/123/abc/bar   ->   args['index']=123  args['foo']='bar'
+@MicroWebSrv.route('/edit')                     # <IP>/edit               ->   args={}
+def _httpHandlerEditWithArgs(httpClient, httpResponse, args={}) :
+	content = """\
+	<!DOCTYPE html>
+	<html lang=en>
+        <head>
+        	<meta charset="UTF-8" />
+            <title>TEST EDIT</title>
+        </head>
+        <body>
+	"""
+	content += "<h1>EDIT item with {} variable arguments</h1>"\
+		.format(len(args))
+	
+	if 'index' in args :
+		content += "<p>index = {}</p>".format(args['index'])
+	
+	if 'foo' in args :
+		content += "<p>foo = {}</p>".format(args['foo'])
+	
+	content += """
+        </body>
+    </html>
+	"""
 	httpResponse.WriteResponseOk( headers		 = None,
 								  contentType	 = "text/html",
 								  contentCharset = "UTF-8",

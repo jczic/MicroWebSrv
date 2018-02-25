@@ -8,6 +8,7 @@ from    os          import stat
 from    _thread     import start_new_thread
 import  socket
 import  gc
+import  re
 
 try :
     from microWebTemplate import MicroWebTemplate
@@ -18,6 +19,15 @@ try :
     from microWebSocket import MicroWebSocket
 except :
     pass
+
+class MicroWebSrvRoute :
+    def __init__(self, route, method, func, routeArgNames, routeRegex) :
+        self.route         = route        
+        self.method        = method       
+        self.func          = func         
+        self.routeArgNames = routeArgNames
+        self.routeRegex    = routeRegex   
+
 
 class MicroWebSrv :
 
@@ -156,14 +166,11 @@ class MicroWebSrv :
     # ============================================================================
 
     def __init__( self,
-                  routeHandlers = None,
+                  routeHandlers = [],
                   port          = 80,
                   bindIP        = '0.0.0.0',
                   webPath       = "/flash/www" ) :
         
-        self._routeHandlers = self._docoratedRouteHandlers
-        if routeHandlers:
-            self._routeHandlers.append(routeHandlers)
         self._srvAddr       = (bindIP, port)
         self._webPath       = webPath
         self._notFoundUrl   = None
@@ -172,6 +179,25 @@ class MicroWebSrv :
         self.MaxWebSocketRecvLen     = 1024
         self.WebSocketThreaded       = True
         self.AcceptWebSocketCallback = None
+
+        self._routeHandlers = []
+        routeHandlers += self._docoratedRouteHandlers
+        for route, method, func in routeHandlers :
+            routeParts = route.split('/')
+            # -> ['', 'users', '<uID>', 'addresses', '<addrID>', 'test', '<anotherID>']
+            routeArgNames = []
+            routeRegex    = ''
+            for s in routeParts :
+                if s.startswith('<') and s.endswith('>') :
+                    routeArgNames.append(s[1:-1])
+                    routeRegex += '/(\\w*)'
+                elif s :
+                    routeRegex += '/' + s
+            routeRegex += '$'
+            # -> '/users/(\w*)/addresses/(\w*)/test/(\w*)$'
+            routeRegex = re.compile(routeRegex)
+
+            self._routeHandlers.append(MicroWebSrvRoute(route, method, func, routeArgNames, routeRegex))
 
     # ============================================================================
     # ===( Server Process )=======================================================
@@ -235,14 +261,27 @@ class MicroWebSrv :
 
     def GetRouteHandler(self, resUrl, method) :
         if self._routeHandlers :
-            resUrl = resUrl.upper()
+            #resUrl = resUrl.upper()
+            if resUrl.endswith('/') :
+                resUrl = resUrl[:-1]
             method = method.upper()
-            for route in self._routeHandlers :
-                if len(route) == 3 and            \
-                   route[0].upper() == resUrl and \
-                   route[1].upper() == method :
-                   return route[2]
-        return None
+            for rh in self._routeHandlers :
+                if rh.method == method :
+                    m = rh.routeRegex.match(resUrl)
+                    if m :   # found matching route?
+                        if rh.routeArgNames :
+                            routeArgs = {}
+                            for i, name in enumerate(rh.routeArgNames) :
+                                value = m.group(i+1)
+                                try :
+                                    value = int(value)
+                                except :
+                                    pass
+                                routeArgs[name] = value
+                            return (rh.func, routeArgs)
+                        else :
+                            return (rh.func, None)
+        return (None, None)
 
     # ----------------------------------------------------------------------------
 
@@ -291,9 +330,12 @@ class MicroWebSrv :
                     if self._parseHeader(response) :
                         upg = self._getConnUpgrade()
                         if not upg :
-                            routeHandler = self._microWebSrv.GetRouteHandler(self._resPath, self._method)
+                            routeHandler, routeArgs = self._microWebSrv.GetRouteHandler(self._resPath, self._method)
                             if routeHandler :
-                                routeHandler(self, response)
+                                if routeArgs is not None:
+                                    routeHandler(self, response, routeArgs)
+                                else:
+                                    routeHandler(self, response)
                             elif self._method.upper() == "GET" :
                                 filepath = self._microWebSrv._physPathFromURLPath(self._resPath)
                                 if filepath :
