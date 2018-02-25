@@ -42,8 +42,8 @@ mws.Start()         # Starts server in a new thread
 ### Using route handlers example :
 ```python
 routeHandlers = [
-	( "relative_url_route_1", "METHOD", handlerFunc_1 ),
-	( "relative_url_route_2", "METHOD", handlerFunc_2 ),
+  ( "relative_url_route_1", "METHOD", handlerFunc_1 ),
+  ( "relative_url_route_2", "METHOD", handlerFunc_2 ),
   ( ... )
 ]
 ```
@@ -69,7 +69,7 @@ def handlerFuncPost(httpClient, httpResponse, routeArgs) :
 ### Using variable routes example :
 ```python
 routeHandlers = [
-	( "/edit/<testid>/<testpath>", "GET", handlerFuncEdit ),
+  ( "/edit/<testid>/<testpath>", "GET", handlerFuncEdit ),
   ( ... )
 ]
 def handlerFuncEdit(httpClient, httpResponse, routeArgs) :
@@ -78,7 +78,7 @@ def handlerFuncEdit(httpClient, httpResponse, routeArgs) :
   print(" - testpath = %s" % routeArgs['testpath'])
 ```
 
-Or with route handler decorator direclty :
+Or direclty with route handler decorator :
 
 ```python
 @MicroWebSrv.route('/edit/<testid>/<testpath>')
