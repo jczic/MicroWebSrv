@@ -1,6 +1,6 @@
 # MicroWebSrv, MicroWebSocket & MicroWebTemplate
 
-### A micro HTTP Web server that supports WebSockets and html/python language templating, for MicroPython (used on ESP32 and [Pycom](http://www.pycom.io) modules)
+### A micro HTTP Web server that supports WebSockets and html/python language templating, for MicroPython and CPython (principally used on ESP32 and [Pycom](http://www.pycom.io) modules)
 
 Very easy to integrate and very light with 3 files only :
 - `"microWebSrv.py"` - The Web server
@@ -9,10 +9,12 @@ Very easy to integrate and very light with 3 files only :
 
 Simple but effective :
 - Use it to embed a cool Web site in yours modules
-- Handle POST requests to interract with user and configure options
+- Handle GET, POST, ... requests to interract with user and configure options
 - Exchange in JSON format on HTTP methods to make an embedded fullREST API
 - Serve files on the fly to export any data to the user
+- Use routes and variable route handlers
 - Play with AjAX to interact speedly with a Web application
+- Make it a captive portal simply
 - Use WebSockets for fast and powerful data exchange
 - Make html/python files for rendering more efficient web pages
 
@@ -37,6 +39,12 @@ Simple but effective :
 from microWebSrv import MicroWebSrv
 mws = MicroWebSrv() # TCP port 80 and files in /flash/www
 mws.Start()         # Starts server in a new thread
+```
+
+### Using as captive portal :
+```python
+# To intercept all not found queries and redirect it,
+mws.SetNotFoundPageUrl("http://my-device.wifi")
 ```
 
 ### Using route handlers example :
