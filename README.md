@@ -335,6 +335,6 @@ def _closedCallback(webSocket) :
 ```
 
 
-### By JC`zic ;')
+### By JC`zic for [HC²](https://www.hc2.fr) ;')
 
 *Keep it simple, stupid* :+1:
