@@ -214,12 +214,13 @@ def _closedCallback(webSocket) :
 
 | Instruction | Schema |
 | - | - |
-| PY   | `{{ py }}` *MicroPython code* `{{ end }}` |
-| IF   | `{{ if` *MicroPython condition* `}}` *html bloc* `{{ end }}` |
-| ELIF | `{{ elif` *MicroPython condition* `}}` *html bloc* `{{ end }}` |
-| ELSE | `{{ else }}` *html bloc* `{{ end }}` |
-| FOR  | `{{ for` *identifier* `in` *MicroPython iterator* `}}` *html bloc* `{{ end }}` |
-| ?    | `{{` *MicroPython expression* `}}` |
+| PY      | `{{ py }}` *MicroPython code* `{{ end }}` |
+| IF      | `{{ if` *MicroPython condition* `}}` *html bloc* `{{ end }}` |
+| ELIF    | `{{ elif` *MicroPython condition* `}}` *html bloc* `{{ end }}` |
+| ELSE    | `{{ else }}` *html bloc* `{{ end }}` |
+| FOR     | `{{ for` *identifier* `in` *MicroPython iterator* `}}` *html bloc* `{{ end }}` |
+| INCLUDE | `{{ include` *pyhtml_filename* `}}` |
+| ?       | `{{` *MicroPython expression* `}}` |
 
 
 ### Using {{ py }} :
@@ -253,6 +254,12 @@ def _closedCallback(webSocket) :
   <div>toto x 10 equal {{ toto * 10 }}</div>
   <hr />
 {{ end }}
+```
+
+### Using {{ include ... }} :
+
+```python
+{{ include myTemplate.pyhtml }}
 ```
 
 ### Example of a .pyhtml file :
