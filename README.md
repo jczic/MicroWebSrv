@@ -22,13 +22,13 @@ Simple but effective :
 
 | Name  | Function |
 | - | - |
-| Constructor | `mws = MicroWebSrv(routeHandlers=None, port=80, webPath="/flash/www")` |
+| Constructor | `mws = MicroWebSrv(routeHandlers=None, port=80, bindIP='0.0.0.0', webPath="/flash/www")` |
 | Start Web server | `mws.Start(threaded=True)` |
 | Stop Web server | `mws.Stop()` |
 | Check if Web server is running | `mws.IsStarted()` |
 | Set URL location for not found page | `mws.SetNotFoundPageUrl(url=None)` |
 | Get mime type from file extention | `mws.GetMimeTypeFromFilename(filename)` |
-| Get handler function from route | `mws.GetRouteHandler(resUrl, method)` |
+| Get handler function from route | `(routeHandler, routeArgs) = mws.GetRouteHandler(resUrl, method)` |
 | Callback function to enable and accept WebSockets | `mws.AcceptWebSocketCallback(webSocket, httpClient)` |
 | Maximum length of memory allocated to receive WebSockets data (1024 by default) | `mws.MaxWebSocketRecvLen` |
 | New thread used for each WebSocket connection (True by default) | `mws.WebSocketThreaded` |
@@ -50,7 +50,8 @@ mws.SetNotFoundPageUrl("http://my-device.wifi")
 
 ### Using route handlers example :
 ```python
-routeHandlers = [
+
+lers = [
   ( "relative_url_route_1", "METHOD", handlerFunc_1 ),
   ( "relative_url_route_2", "METHOD", handlerFunc_2 ),
   ( ... )
