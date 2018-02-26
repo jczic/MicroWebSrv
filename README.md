@@ -1,6 +1,6 @@
 # MicroWebSrv, MicroWebSocket & MicroWebTemplate
 
-### A micro HTTP Web server that supports WebSockets and html/python language templating, for MicroPython (used on ESP32 and [Pycom](http://www.pycom.io) modules)
+### A micro HTTP Web server that supports WebSockets and html/python language templating, for MicroPython and CPython (principally used on ESP32 and [Pycom](http://www.pycom.io) modules)
 
 Very easy to integrate and very light with 3 files only :
 - `"microWebSrv.py"` - The Web server
@@ -9,10 +9,12 @@ Very easy to integrate and very light with 3 files only :
 
 Simple but effective :
 - Use it to embed a cool Web site in yours modules
-- Handle POST requests to interract with user and configure options
+- Handle GET, POST, ... requests to interract with user and configure options
 - Exchange in JSON format on HTTP methods to make an embedded fullREST API
 - Serve files on the fly to export any data to the user
+- Use routes and variable route handlers
 - Play with AjAX to interact speedly with a Web application
+- Make it a captive portal simply
 - Use WebSockets for fast and powerful data exchange
 - Make html/python files for rendering more efficient web pages
 
@@ -20,13 +22,13 @@ Simple but effective :
 
 | Name  | Function |
 | - | - |
-| Constructor | `mws = MicroWebSrv(routeHandlers=None, port=80, webPath="/flash/www")` |
+| Constructor | `mws = MicroWebSrv(routeHandlers=None, port=80, bindIP='0.0.0.0', webPath="/flash/www")` |
 | Start Web server | `mws.Start(threaded=True)` |
 | Stop Web server | `mws.Stop()` |
 | Check if Web server is running | `mws.IsStarted()` |
 | Set URL location for not found page | `mws.SetNotFoundPageUrl(url=None)` |
 | Get mime type from file extention | `mws.GetMimeTypeFromFilename(filename)` |
-| Get handler function from route | `mws.GetRouteHandler(resUrl, method)` |
+| Get handler function from route | `(routeHandler, routeArgs) = mws.GetRouteHandler(resUrl, method)` |
 | Callback function to enable and accept WebSockets | `mws.AcceptWebSocketCallback(webSocket, httpClient)` |
 | Maximum length of memory allocated to receive WebSockets data (1024 by default) | `mws.MaxWebSocketRecvLen` |
 | New thread used for each WebSocket connection (True by default) | `mws.WebSocketThreaded` |
@@ -39,28 +41,61 @@ mws = MicroWebSrv() # TCP port 80 and files in /flash/www
 mws.Start()         # Starts server in a new thread
 ```
 
+### Using as captive portal :
+```python
+# To intercept all not found queries and redirect it,
+mws.SetNotFoundPageUrl("http://my-device.wifi")
+```
+- Can be used with [MicroDNSSrv](https://github.com/jczic/MicroDNSSrv) easily.
+
 ### Using route handlers example :
 ```python
-routeHandlers = [
-	( "relative_url_1", "METHOD", handlerFunc_1 ),
-	( "relative_url_2", "METHOD", handlerFunc_2 ),
+
+lers = [
+  ( "relative_url_route_1", "METHOD", handlerFunc_1 ),
+  ( "relative_url_route_2", "METHOD", handlerFunc_2 ),
   ( ... )
 ]
 ```
 ```python
-def handlerFunc(httpClient, httpResponse) :
-  pass
+def handlerFunc_1(httpClient, httpResponse, routeArgs) :
+  print("In HTTP handler 1")
+
+def handlerFunc_2(httpClient, httpResponse, routeArgs) :
+  print("In HTTP handler 2")
 ```
 
-### Or using directly route handlers decorators :
+### Using directly route handlers decorators example :
 ```python
 @MicroWebSrv.route('/get-test')
-def handlerFuncGet(httpClient, httpResponse) :
-  pass
+def handlerFuncGet(httpClient, httpResponse, routeArgs) :
+  print("In GET-TEST HTTP")
 
 @MicroWebSrv.route('/post-test', 'POST')
-def handlerFuncPost(httpClient, httpResponse) :
-  pass
+def handlerFuncPost(httpClient, httpResponse, routeArgs) :
+  print("In POST-TEST HTTP")
+```
+
+### Using variable routes example :
+```python
+routeHandlers = [
+  ( "/edit/<testid>/<testpath>", "GET", handlerFuncEdit ),
+  ( ... )
+]
+def handlerFuncEdit(httpClient, httpResponse, routeArgs) :
+  print("In EDIT HTTP variable route :")
+  print(" - testid   = %s" % routeArgs['testid'])
+  print(" - testpath = %s" % routeArgs['testpath'])
+```
+
+Or direclty with route handler decorator :
+
+```python
+@MicroWebSrv.route('/edit/<testid>/<testpath>')
+def handlerFuncEdit(httpClient, httpResponse, routeArgs) :
+  print("In EDIT HTTP variable route :")
+  print(" - testid   = %s" % routeArgs['testid'])
+  print(" - testpath = %s" % routeArgs['testpath'])
 ```
 
 ### Using *httpClient* class in a route handler function :
@@ -214,12 +249,13 @@ def _closedCallback(webSocket) :
 
 | Instruction | Schema |
 | - | - |
-| PY   | `{{ py }}` *MicroPython code* `{{ end }}` |
-| IF   | `{{ if` *MicroPython condition* `}}` *html bloc* `{{ end }}` |
-| ELIF | `{{ elif` *MicroPython condition* `}}` *html bloc* `{{ end }}` |
-| ELSE | `{{ else }}` *html bloc* `{{ end }}` |
-| FOR  | `{{ for` *identifier* `in` *MicroPython iterator* `}}` *html bloc* `{{ end }}` |
-| ?    | `{{` *MicroPython expression* `}}` |
+| PY      | `{{ py }}` *MicroPython code* `{{ end }}` |
+| IF      | `{{ if` *MicroPython condition* `}}` *html bloc* `{{ end }}` |
+| ELIF    | `{{ elif` *MicroPython condition* `}}` *html bloc* `{{ end }}` |
+| ELSE    | `{{ else }}` *html bloc* `{{ end }}` |
+| FOR     | `{{ for` *identifier* `in` *MicroPython iterator* `}}` *html bloc* `{{ end }}` |
+| INCLUDE | `{{ include` *pyhtml_filename* `}}` |
+| ?       | `{{` *MicroPython expression* `}}` |
 
 
 ### Using {{ py }} :
@@ -253,6 +289,12 @@ def _closedCallback(webSocket) :
   <div>toto x 10 equal {{ toto * 10 }}</div>
   <hr />
 {{ end }}
+```
+
+### Using {{ include ... }} :
+
+```python
+{{ include myTemplate.pyhtml }}
 ```
 
 ### Example of a .pyhtml file :
@@ -294,6 +336,6 @@ def _closedCallback(webSocket) :
 ```
 
 
-### By JC`zic ;')
+### By JC`zic for [HC²](https://www.hc2.fr) ;')
 
 *Keep it simple, stupid* :+1:
