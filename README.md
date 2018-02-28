@@ -1,5 +1,7 @@
 # MicroWebSrv, MicroWebSocket & MicroWebTemplate
 
+![HC²](hc2.png "HC²")
+
 ### A micro HTTP Web server that supports WebSockets and html/python language templating, for MicroPython and CPython (principally used on ESP32 and [Pycom](http://www.pycom.io) modules)
 
 Very easy to integrate and very light with 3 files only :
