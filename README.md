@@ -1,4 +1,4 @@
-## A micro HTTP Web server that supports WebSockets and html/python language templating, for MicroPython and CPython (principally used on ESP32 and [Pycom](http://www.pycom.io) modules)
+## A micro HTTP Web server that supports WebSockets, html/python language templating and routing handlers, for MicroPython (principally used on ESP32 and [Pycom](http://www.pycom.io) modules)
 
 ![HC²](hc2.png "HC²")
 
