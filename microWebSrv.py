@@ -564,6 +564,11 @@ class MicroWebSrv :
 
         # ------------------------------------------------------------------------
 
+        def _writeServerHeader(self) :
+            self._writeHeader("Server", "MicroWebSrv by JC`zic")
+
+        # ------------------------------------------------------------------------
+
         def _writeEndHeader(self) :
             self._write("\r\n")
 
@@ -577,7 +582,7 @@ class MicroWebSrv :
             if contentLength > 0 :
                 self._writeContentTypeHeader(contentType, contentCharset)
                 self._writeHeader("Content-Length", contentLength)
-            self._writeHeader("Server", "MicroWebSrv by JC`zic")
+            self._writeServerHeader()
             self._writeHeader("Connection", "close")
             self._writeEndHeader()
 
@@ -585,12 +590,13 @@ class MicroWebSrv :
 
         def WriteSwitchProto(self, upgrade, headers=None) :
             self._writeFirstLine(101)
-            self._writeHeader("Connection",     "Upgrade")
-            self._writeHeader("Upgrade",        upgrade)
-            self._writeHeader("Content-Length", 0)
+            self._writeHeader("Connection", "Upgrade")
+            self._writeHeader("Upgrade",    upgrade)
             if isinstance(headers, dict) :
                 for header in headers :
                     self._writeHeader(header, headers[header])
+            self._writeServerHeader()
+            self._writeEndHeader()
             if self._client._socketfile is not self._client._socket :
                 self._client._socketfile.flush()   # CPython needs flush to continue protocol
 

@@ -110,7 +110,7 @@ class MicroWebSocket :
             if key :
                 key += self._handshakeSign
                 r = sha1(key.encode()).digest()
-                r = b2a_base64(r).decode()
+                r = b2a_base64(r).decode().strip()
                 httpResponse.WriteSwitchProto("websocket", { "Sec-WebSocket-Accept" : r })
                 return True
         except :
