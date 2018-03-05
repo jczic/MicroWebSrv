@@ -545,7 +545,7 @@ class MicroWebSrv :
 
         def _writeFirstLine(self, code) :
             reason = self._responseCodes.get(code, ('Unknown reason', ))[0]
-            self._write("HTTP/1.0 %s %s\r\n" % (code, reason))
+            self._write("HTTP/1.1 %s %s\r\n" % (code, reason))
 
         # ------------------------------------------------------------------------
 
@@ -585,8 +585,9 @@ class MicroWebSrv :
 
         def WriteSwitchProto(self, upgrade, headers=None) :
             self._writeFirstLine(101)
-            self._writeHeader("Connection", "Upgrade")
-            self._writeHeader("Upgrade",    upgrade)
+            self._writeHeader("Connection",     "Upgrade")
+            self._writeHeader("Upgrade",        upgrade)
+            self._writeHeader("Content-Length", 0)
             if isinstance(headers, dict) :
                 for header in headers :
                     self._writeHeader(header, headers[header])
