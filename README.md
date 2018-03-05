@@ -1,12 +1,10 @@
-# MicroWebSrv, MicroWebSocket & MicroWebTemplate
+## MicroWebSrv is a micro HTTP Web server that supports WebSockets, html/python language templating and routing handlers, for MicroPython (principally used on ESP32 and [Pycom](http://www.pycom.io) modules)
 
 ![HC²](hc2.png "HC²")
 
-### A micro HTTP Web server that supports WebSockets and html/python language templating, for MicroPython and CPython (principally used on ESP32 and [Pycom](http://www.pycom.io) modules)
-
 Very easy to integrate and very light with 3 files only :
 - `"microWebSrv.py"` - The Web server
-- `"microWebSocket.py"` - The optional suppport of WebSockets
+- `"microWebSocket.py"` - The optional support of WebSockets
 - `"microWebTemplate.py"` - The optional templating language for **.pyhtml** rendered pages
 
 Simple but effective :
@@ -48,7 +46,7 @@ mws.Start()         # Starts server in a new thread
 # To intercept all not found queries and redirect it,
 mws.SetNotFoundPageUrl("http://my-device.wifi")
 ```
-- Can be used with [MicroDNSSrv](https://github.com/jczic/MicroDNSSrv) easily.
+- Can be used with [MicroDNSSrv](http://microdnssrv.hc2.fr) easily.
 
 ### Using route handlers example :
 ```python
