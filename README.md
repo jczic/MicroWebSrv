@@ -58,21 +58,21 @@ lers = [
 ]
 ```
 ```python
-def handlerFunc_1(httpClient, httpResponse, routeArgs) :
+def handlerFunc_1(httpClient, httpResponse, routeArgs=None) :
   print("In HTTP handler 1")
 
-def handlerFunc_2(httpClient, httpResponse, routeArgs) :
+def handlerFunc_2(httpClient, httpResponse, routeArgs=None) :
   print("In HTTP handler 2")
 ```
 
 ### Using directly route handlers decorators example :
 ```python
 @MicroWebSrv.route('/get-test')
-def handlerFuncGet(httpClient, httpResponse, routeArgs) :
+def handlerFuncGet(httpClient, httpResponse) :
   print("In GET-TEST HTTP")
 
 @MicroWebSrv.route('/post-test', 'POST')
-def handlerFuncPost(httpClient, httpResponse, routeArgs) :
+def handlerFuncPost(httpClient, httpResponse) :
   print("In POST-TEST HTTP")
 ```
 
