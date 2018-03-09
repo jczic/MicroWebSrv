@@ -4,7 +4,7 @@ Copyright © 2018 Jean-Christophe Bos & HC² (www.hc2.fr)
 """
 
 
-from    json        import dumps
+from    json        import loads, dumps
 from    os          import stat
 from    _thread     import start_new_thread
 import  socket
@@ -522,6 +522,14 @@ class MicroWebSrv :
                         value = MicroWebSrv._unquote(param[1]) if len(param) > 1 else ''
                         res[MicroWebSrv._unquote(param[0])] = value
             return res
+
+        # ------------------------------------------------------------------------
+
+        def ReadRequestContentAsJSON(self) :
+            try :
+                return loads(self.ReadRequestContent())
+            except :
+                return None
         
     # ============================================================================
     # ===( Class Response  )======================================================
