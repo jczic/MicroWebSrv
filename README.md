@@ -116,6 +116,7 @@ def handlerFuncEdit(httpClient, httpResponse, routeArgs) :
 | Get client request content length | `httpClient.GetRequestContentLength()` |
 | Get client request content | `httpClient.ReadRequestContent(size=None)` |
 | Get client request form data as list | `httpClient.ReadRequestPostedFormData()` |
+| Get client request as JSON object | `httpClient.ReadRequestContentAsJSON()` |
 
 ### Using *httpResponse* class in a route handler function :
 
