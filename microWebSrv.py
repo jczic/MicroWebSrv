@@ -628,7 +628,8 @@ class MicroWebSrv :
                     code = file.read()
                 mWebTmpl = MicroWebTemplate(code, escapeStrFunc=MicroWebSrv.HTMLEscape, filepath=filepath)
                 try :
-                    return self.WriteResponseOk(headers, "text/html", "UTF-8", mWebTmpl.Execute())
+                    tmplResult = mWebTmpl.Execute()
+                    return self.WriteResponse(200, headers, "text/html", "UTF-8", tmplResult)
                 except Exception as ex :
                     return self.WriteResponse( 500,
     	                                       None,
@@ -680,7 +681,7 @@ class MicroWebSrv :
         # ------------------------------------------------------------------------
 
         def WriteResponseJSONOk(self, obj=None, headers=None) :
-            return self.WriteResponseOk(headers, "application/json", "UTF-8", dumps(obj))
+            return self.WriteResponse(200, headers, "application/json", "UTF-8", dumps(obj))
 
         # ------------------------------------------------------------------------
 
