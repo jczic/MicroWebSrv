@@ -58,7 +58,7 @@ class MicroWebTemplate :
 
 	def Validate(self, pyGlobalVars=None, pyLocalVars=None) :
 		try :
-			self._parseCode(pyGlobalVars, pyLocalVars, execute=True)
+			self._parseCode(pyGlobalVars, pyLocalVars, execute=False)
 			return None
 		except Exception as ex :
 			return str(ex)
