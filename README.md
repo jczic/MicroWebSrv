@@ -124,7 +124,7 @@ def handlerFuncEdit(httpClient, httpResponse, routeArgs) :
 | - | - |
 | Write switching protocols response | `httpResponse.WriteSwitchProto(upgrade, headers=None)` |
 | Write generic response | `httpResponse.WriteResponse(code, headers, contentType, contentCharset, content)` |
-| Write PyHTML rendered response page | `httpResponse.WriteResponsePyHTMLFile(filepath, headers=None)` |
+| Write PyHTML rendered response page | `httpResponse.WriteResponsePyHTMLFile(filepath, headers=None, vars=None)` |
 | Write file directly as response | `httpResponse.WriteResponseFile(filepath, contentType=None, headers=None)` |
 | Write attached file as response | `httpResponse.WriteResponseFileAttachment(filepath, attachmentName, headers=None)` |
 | Write OK response | `httpResponse.WriteResponseOk(headers=None, contentType=None, contentCharset=None, content=None)` |
