@@ -51,7 +51,7 @@ mws.SetNotFoundPageUrl("http://my-device.wifi")
 ### Using route handlers example :
 ```python
 
-lers = [
+routeHandlers = [
   ( "relative_url_route_1", "METHOD", handlerFunc_1 ),
   ( "relative_url_route_2", "METHOD", handlerFunc_2 ),
   ( ... )
