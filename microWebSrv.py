@@ -358,7 +358,12 @@ class MicroWebSrv :
                                     else :
                                         contentType = self._microWebSrv.GetMimeTypeFromFilename(filepath)
                                         if contentType :
-                                            response.WriteResponseFile(filepath, contentType)
+                                            if 'if-modified-since' in self._headers:
+                                                response.WriteResponseNotModified()
+                                            else:
+                                                header = {'Last-Modified':'Fri, 1 Jan 2018 23:42:00 GMT', \
+                                                          'Cache-Control':'max-age=315360000'}
+                                                response.WriteResponseFile(filepath, contentType, header)
                                         else :
                                             response.WriteResponseForbidden()
                                 else :
@@ -711,6 +716,11 @@ class MicroWebSrv :
                                        "application/json",
                                        "UTF-8",
                                        dumps(obj if obj else { }) )
+
+        # ------------------------------------------------------------------------
+
+        def WriteResponseNotModified(self) :
+            return self.WriteResponseError(304)
 
         # ------------------------------------------------------------------------
 
