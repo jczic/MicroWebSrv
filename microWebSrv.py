@@ -172,7 +172,7 @@ class MicroWebSrv :
             ret.append(c)
             i += 1
 
-        return ret.decode('utf-8')
+        return str(ret, "utf-8")
 
     # ----------------------------------------------------------------------------
 
