@@ -12,12 +12,12 @@ import  gc
 import  re
 
 try :
-    from .microWebTemplate import MicroWebTemplate
+    from microWebTemplate import MicroWebTemplate
 except :
     pass
 
 try :
-    from .microWebSocket import MicroWebSocket
+    from microWebSocket import MicroWebSocket
 except :
     pass
 
