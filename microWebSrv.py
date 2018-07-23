@@ -574,9 +574,11 @@ class MicroWebSrv :
         # ------------------------------------------------------------------------
 
         def _write(self, data) :
-            if type(data) == str:
-                data = data.encode()
-            return self._client._socketfile.write(data)
+            if data :
+                if type(data) == str :
+                    data = data.encode()
+                return self._client._socketfile.write(data)
+            return 0
 
         # ------------------------------------------------------------------------
 
@@ -641,9 +643,14 @@ class MicroWebSrv :
 
         def WriteResponse(self, code, headers, contentType, contentCharset, content) :
             try :
-                contentLength = len(content) if content else 0
+                if content :
+                    if type(content) == str :
+                        content = content.encode()
+                    contentLength = len(content)
+                else :
+                    contentLength = 0
                 self._writeBeforeContent(code, headers, contentType, contentCharset, contentLength)
-                if contentLength > 0 :
+                if content :
                     self._write(content)
                 return True
             except :
