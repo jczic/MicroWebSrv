@@ -6,7 +6,7 @@ Copyright © 2018 Jean-Christophe Bos & HC² (www.hc2.fr)
 from   hashlib     import sha1
 from   binascii    import b2a_base64
 from   struct      import pack
-from   _thread     import start_new_thread
+from   _thread     import start_new_thread, allocate_lock
 import gc
 
 class MicroWebSocket :
@@ -71,6 +71,7 @@ class MicroWebSocket :
         self._socket            = socket
         self._httpCli           = httpClient
         self._closed            = True
+        self._lock              = allocate_lock()
         self.RecvTextCallback   = None
         self.RecvBinaryCallback = None
         self.ClosedCallback     = None
@@ -231,6 +232,7 @@ class MicroWebSocket :
             if dataLen <= 0xFFFF :
                 b1 = (0x80 | opcode) if fin else opcode
                 b2 = 0x7E if dataLen >= 0x7E else dataLen
+                self._lock.acquire()
                 try :
                     if self._socketfile.write(pack('>BB', b1, b2)) == 2 :
                         if dataLen > 0 :
@@ -241,9 +243,11 @@ class MicroWebSocket :
                             ret = True
                         if self._socketfile is not self._socket :
                             self._socketfile.flush()   # CPython needs flush to continue protocol
+                        self._lock.release()
                         return ret
                 except :
                     pass
+                self._lock.release()
         return False
 
     # ----------------------------------------------------------------------------
