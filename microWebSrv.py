@@ -238,8 +238,10 @@ class MicroWebSrv :
         while True :
             try :
                 client, cliAddr = self._server.accept()
-            except :
-                break
+            except Exception as ex :
+                if ex.args and ex.args[0] == 113 :
+                    break
+                continue
             self._client(self, client, cliAddr)
         self._started = False
 
