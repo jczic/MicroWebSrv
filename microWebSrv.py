@@ -381,15 +381,17 @@ class MicroWebSrv :
                                         response.WriteResponsePyHTMLFile(filepath)
                                     else :
                                         contentType = self._microWebSrv.GetMimeTypeFromFilename(filepath)
-                                        if self._microWebSrv.LetCacheStaticContentLevel > 0 and contentType :
-                                            if self._microWebSrv.LetCacheStaticContentLevel > 1 and 'if-modified-since' in self._headers :
-                                                response.WriteResponseNotModified()
-                                            else:
-                                                header = {'Last-Modified':'Fri, 1 Jan 2018 23:42:00 GMT', \
-                                                          'Cache-Control':'max-age=315360000'}
-                                                response.WriteResponseFile(filepath, contentType, header)
-                                        elif contentType :
-                                            response.WriteResponseFile(filepath, contentType, header)
+                                        if contentType :
+                                            if self._microWebSrv.LetCacheStaticContentLevel > 0 :
+                                                if self._microWebSrv.LetCacheStaticContentLevel > 1 and \
+                                                   'if-modified-since' in self._headers :
+                                                    response.WriteResponseNotModified()
+                                                else:
+                                                    headers = { 'Last-Modified' : 'Fri, 1 Jan 2018 23:42:00 GMT', \
+                                                                'Cache-Control' : 'max-age=315360000' }
+                                                    response.WriteResponseFile(filepath, contentType, headers)
+                                            else :
+                                                response.WriteResponseFile(filepath, contentType)
                                         else :
                                             response.WriteResponseForbidden()
                                 else :
