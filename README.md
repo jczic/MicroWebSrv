@@ -29,7 +29,7 @@ Simple but effective :
 | Set URL location for not found page | `mws.SetNotFoundPageUrl(url=None)` |
 | Get mime type from file extention | `mws.GetMimeTypeFromFilename(filename)` |
 | Get handler function from route | `(routeHandler, routeArgs) = mws.GetRouteHandler(resUrl, method)` |
-| Callback function to enable and accept WebSockets | `mws.AcceptWebSocketCallback(webSocket, httpClient)` |
+| Callback function to enable and accept WebSockets | `mws.AcceptWebSocketCallback = _acptWS` `_acptWS(webSocket, httpClient) { }` |
 | Maximum length of memory allocated to receive WebSockets data (1024 by default) | `mws.MaxWebSocketRecvLen` |
 | New thread used for each WebSocket connection (True by default) | `mws.WebSocketThreaded` |
 | Escape string to HTML usage | `MicroWebSrv.HTMLEscape(s)` |
