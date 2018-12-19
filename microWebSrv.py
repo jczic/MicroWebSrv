@@ -103,36 +103,20 @@ class MicroWebSrv :
     # ----------------------------------------------------------------------------
 
     @staticmethod
-    def _tryAllocByteArray(size) :
-        for x in range(10) :
+    def _startThread(func, args=()) :
+        try :
+            start_new_thread(func, args)
+        except :
+            global _mwsrv_thread_id
             try :
-                gc.collect()
-                return bytearray(size)
+                _mwsrv_thread_id += 1
             except :
-                pass
-        return None
-
-    # ----------------------------------------------------------------------------
-
-    @staticmethod
-    def _tryStartThread(func, args=()) :
-        for x in range(10) :
+                _mwsrv_thread_id = 0
             try :
-                gc.collect()
-                start_new_thread(func, args)
-                return True
+                start_new_thread('MWSRV_THREAD_%s' % _mwsrv_thread_id, func, args)
             except :
-                global _mwsrv_thread_id
-                try :
-                    _mwsrv_thread_id += 1
-                except :
-                    _mwsrv_thread_id = 0
-                try :
-                    start_new_thread('MWSRV_THREAD_%s' % _mwsrv_thread_id, func, args)
-                    return True
-                except :
-                    pass
-        return False
+                return False
+        return True
 
     # ----------------------------------------------------------------------------
 
@@ -228,7 +212,7 @@ class MicroWebSrv :
     # ===( Functions )============================================================
     # ============================================================================
 
-    def Start(self, threaded=True) :
+    def Start(self, threaded=False) :
         if not self._started :
             self._server = socket.socket( socket.AF_INET,
                                           socket.SOCK_STREAM,
@@ -239,7 +223,7 @@ class MicroWebSrv :
             self._server.bind(self._srvAddr)
             self._server.listen(1)
             if threaded :
-                MicroWebSrv._tryStartThread(self._serverProcess)
+                MicroWebSrv._startThread(self._serverProcess)
             else :
                 self._serverProcess()
 
@@ -668,8 +652,8 @@ class MicroWebSrv :
                 if size > 0 :
                     with open(filepath, 'rb') as file :
                         self._writeBeforeContent(200, headers, contentType, None, size)
-                        buf = MicroWebSrv._tryAllocByteArray(1024)
-                        if buf :
+                        try :
+                            buf = bytearray(1024)
                             while size > 0 :
                                 x = file.readinto(buf)
                                 if x < len(buf) :
@@ -677,8 +661,9 @@ class MicroWebSrv :
                                 self._write(buf)
                                 size -= x
                             return True
-                        self.WriteResponseInternalServerError()
-                        return False
+                        except :
+                            self.WriteResponseInternalServerError()
+                            return False
             except :
                 pass
             self.WriteResponseNotFound()

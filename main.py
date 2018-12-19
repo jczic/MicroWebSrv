@@ -116,6 +116,6 @@ srv = MicroWebSrv(webPath='www/')
 srv.MaxWebSocketRecvLen     = 256
 srv.WebSocketThreaded		= False
 srv.AcceptWebSocketCallback = _acceptWebSocketCallback
-srv.Start(threaded=False)
+srv.Start()
 
 # ----------------------------------------------------------------------------
