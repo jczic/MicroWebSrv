@@ -7,6 +7,9 @@ Very easy to integrate and very light with 3 files only :
 - `"microWebSocket.py"` - The optional support of WebSockets
 - `"microWebTemplate.py"` - The optional templating language for **.pyhtml** rendered pages
 
+Mini tuto in video by rdagger68 :
+- [https://www.youtube.com/watch?v=xscBwC1SrF4](https://www.youtube.com/watch?v=xscBwC1SrF4)
+
 Simple but effective :
 - Use it to embed a cool Web site in yours modules
 - Handle GET, POST, ... requests to interract with user and configure options
