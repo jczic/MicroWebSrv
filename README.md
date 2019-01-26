@@ -40,8 +40,8 @@ Simple but effective :
 ### Basic example :
 ```python
 from microWebSrv import MicroWebSrv
-mws = MicroWebSrv() # TCP port 80 and files in /flash/www
-mws.Start()         # Starts server in a new thread
+mws = MicroWebSrv()      # TCP port 80 and files in /flash/www
+mws.Start(threaded=True) # Starts server in a new thread
 ```
 
 ### Using as captive portal :
@@ -214,7 +214,7 @@ mws = MicroWebSrv()                                    # TCP port 80 and files i
 mws.MaxWebSocketRecvLen     = 256                      # Default is set to 1024
 mws.WebSocketThreaded       = False                    # WebSockets without new threads
 mws.AcceptWebSocketCallback = _acceptWebSocketCallback # Function to receive WebSockets
-mws.Start()                                            # Starts server in a new thread
+mws.Start(threaded=True)                               # Starts server in a new thread
 ```
 
 | Name  | Function |
