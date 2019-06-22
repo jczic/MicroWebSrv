@@ -23,11 +23,11 @@ except :
 
 class MicroWebSrvRoute :
     def __init__(self, route, method, func, routeArgNames, routeRegex) :
-        self.route         = route        
-        self.method        = method       
-        self.func          = func         
+        self.route         = route
+        self.method        = method
+        self.func          = func
         self.routeArgNames = routeArgNames
-        self.routeRegex    = routeRegex   
+        self.routeRegex    = routeRegex
 
 
 class MicroWebSrv :
@@ -64,6 +64,13 @@ class MicroWebSrv :
         ".svg"   : "image/svg+xml",
         ".ico"   : "image/x-icon"
     }
+
+    _encodings = (
+        (".gz" , "gzip"),
+        (".br" , "br"),
+        (""    , "identity"),
+        (""    , ""),
+    )
 
     _html_escape_chars = {
         "&" : "&amp;",
@@ -245,15 +252,26 @@ class MicroWebSrv :
 
     # ----------------------------------------------------------------------------
 
-    def GetMimeTypeFromFilename(self, filename) :
+    def GetMimeTypeFromFilename(self, filename, encoding="") :
         filename = filename.lower()
+        for encoding_ext, enc in self._encodings :
+            if encoding == enc:
+                break
+
         for ext in self._mimeTypes :
-            if filename.endswith(ext) :
+            if filename.endswith(ext + encoding_ext) :
                 return self._mimeTypes[ext]
         return None
 
+    def GetEncodingFromFilename(self, filename) :
+        filename = filename.lower()
+        for ext, enc in self._encodings :
+            if ext and filename.endswith(ext) :
+                return enc
+        return None
+
     # ----------------------------------------------------------------------------
-    
+
     def GetRouteHandler(self, resUrl, method) :
         if self._routeHandlers :
             #resUrl = resUrl.upper()
@@ -280,16 +298,22 @@ class MicroWebSrv :
 
     # ----------------------------------------------------------------------------
 
-    def _physPathFromURLPath(self, urlPath) :
+    def _physPathWithEncodings(self, path, encodings=[]) :
+        for extension, enc in self._encodings :
+            if enc == "" or enc in encodings or "*" in encodings:
+                physPath = path + extension
+                if MicroWebSrv._fileExists(physPath) :
+                    return physPath
+        return None
+
+    def _physPathFromURLPath(self, urlPath, encodings=[]) :
         if urlPath == '/' :
             for idxPage in self._indexPages :
-            	physPath = self._webPath + '/' + idxPage
-            	if MicroWebSrv._fileExists(physPath) :
-            		return physPath
+                physPath = self._physPathWithEncodings(self._webPath + '/' + idxPage, encodings)
+                if physPath:
+                    return physPath
         else :
-            physPath = self._webPath + urlPath
-            if MicroWebSrv._fileExists(physPath) :
-                return physPath
+            return self._physPathWithEncodings(self._webPath + urlPath, encodings)
         return None
 
     # ============================================================================
@@ -314,12 +338,12 @@ class MicroWebSrv :
             self._headers       = { }
             self._contentType   = None
             self._contentLength = 0
-            
+
             if hasattr(socket, 'readline'):   # MicroPython
                 self._socketfile = self._socket
             else:   # CPython
                 self._socketfile = self._socket.makefile('rwb')
-                        
+
             self._processRequest()
 
         # ------------------------------------------------------------------------
@@ -338,23 +362,27 @@ class MicroWebSrv :
                                 else:
                                     routeHandler(self, response)
                             elif self._method.upper() == "GET" :
-                                filepath = self._microWebSrv._physPathFromURLPath(self._resPath)
+                                encodings = [enc.strip().split(";")[0] for enc in self._headers.get("accept-encoding", "").split(",")]
+                                filepath = self._microWebSrv._physPathFromURLPath(self._resPath, encodings)
                                 if filepath :
                                     if MicroWebSrv._isPyHTMLFile(filepath) :
                                         response.WriteResponsePyHTMLFile(filepath)
                                     else :
-                                        contentType = self._microWebSrv.GetMimeTypeFromFilename(filepath)
+                                        encoding = self._microWebSrv.GetEncodingFromFilename(filepath)
+                                        contentType = self._microWebSrv.GetMimeTypeFromFilename(filepath, encoding)
                                         if contentType :
+                                            headers = {}
+                                            if encoding :
+                                                headers["Content-Encoding"] = encoding
+
                                             if self._microWebSrv.LetCacheStaticContentLevel > 0 :
                                                 if self._microWebSrv.LetCacheStaticContentLevel > 1 and \
                                                    'if-modified-since' in self._headers :
                                                     response.WriteResponseNotModified()
                                                 else:
-                                                    headers = { 'Last-Modified' : 'Fri, 1 Jan 2018 23:42:00 GMT', \
-                                                                'Cache-Control' : 'max-age=315360000' }
-                                                    response.WriteResponseFile(filepath, contentType, headers)
-                                            else :
-                                                response.WriteResponseFile(filepath, contentType)
+                                                    headers['Last-Modified'] = 'Fri, 1 Jan 2018 23:42:00 GMT'
+                                                    headers['Cache-Control'] = 'max-age=315360000'
+                                            response.WriteResponseFile(filepath, contentType, headers)
                                         else :
                                             response.WriteResponseForbidden()
                                 else :
@@ -407,7 +435,7 @@ class MicroWebSrv :
             except :
                 pass
             return False
-    
+
         # ------------------------------------------------------------------------
 
         def _parseHeader(self, response) :
@@ -526,7 +554,7 @@ class MicroWebSrv :
                 return loads(self.ReadRequestContent())
             except :
                 return None
-        
+
     # ============================================================================
     # ===( Class Response  )======================================================
     # ============================================================================
