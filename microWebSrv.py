@@ -224,7 +224,8 @@ class MicroWebSrv :
     # ============================================================================
 
     def boardSocket(self):
-        # Check if this is a board which does not fully support the Unix like socket api. If it does not then create the simpler version of a socket.
+
+        # Check if this is a board which does not full support the Unix like socket api
         for board in self._hardwareBoards:
             if board == self._boardType:
                 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -238,6 +239,10 @@ class MicroWebSrv :
 
     def Start(self, threaded=False) :
         if not self._started :
+#            self._server = socket.socket( socket.AF_INET,
+#                                          socket.SOCK_STREAM)
+#                                          socket.SOCK_STREAM,
+#                                          socket.IPPROTO_TCP )
             self._server = self.boardSocket()
 
             self._server.setsockopt( socket.SOL_SOCKET,
