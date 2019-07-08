@@ -5,7 +5,7 @@ Copyright © 2018 Jean-Christophe Bos & HC² (www.hc2.fr)
 
 
 from    json        import loads, dumps
-from    os          import stat
+from    os          import stat, uname
 from    _thread     import start_new_thread
 import  socket
 import  gc
@@ -35,6 +35,15 @@ class MicroWebSrv :
     # ============================================================================
     # ===( Constants )============================================================
     # ============================================================================
+
+    # A list of boards that currently need changes to how sockets are implemented
+    _hardwareBoards = [
+        "PYBD-SF2W",
+        "PYBD-SF3W",
+        "PYBD-SF6W",
+        "PYBD_SF6W"
+    ]
+
 
     _indexPages = [
         "index.pyhtml",
@@ -192,6 +201,8 @@ class MicroWebSrv :
 
             self._routeHandlers.append(MicroWebSrvRoute(route, method, func, routeArgNames, routeRegex))
 
+        self._boardType = uname()[4].split()[0]      # Provides the name of the actual board being used
+
     # ============================================================================
     # ===( Server Process )=======================================================
     # ============================================================================
@@ -212,11 +223,23 @@ class MicroWebSrv :
     # ===( Functions )============================================================
     # ============================================================================
 
+    def boardSocket(self):
+        # Check if this is a board which does not fully support the Unix like socket api. If it does not then create the simpler version of a socket.
+        for board in self._hardwareBoards:
+            if board == self._boardType:
+                server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                return server_socket
+
+        # If we have not returned a server_socket handle at this point then we should assume it's a fully supported unix socket
+        server_socket = socket.socket(socket.AF_INET,
+                                      socket.SOCK_STREAM,
+                                      socket.IPPROTO_TCP)
+        return server_socket
+
     def Start(self, threaded=False) :
         if not self._started :
-            self._server = socket.socket( socket.AF_INET,
-                                          socket.SOCK_STREAM,
-                                          socket.IPPROTO_TCP )
+            self._server = self.boardSocket()
+
             self._server.setsockopt( socket.SOL_SOCKET,
                                      socket.SO_REUSEADDR,
                                      1 )
