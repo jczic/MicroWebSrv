@@ -217,24 +217,22 @@ class MicroWebSrv :
     def Start(self, threaded=False):
         if not self._started:
             try:
-                self._server = socket.socket( socket.AF_INET,
-                                              socket.SOCK_STREAM,
-                                              socket.SOCK_STREAM,
-                                              socket.IPPROTO_TCP)
+                self._server = socket.socket(socket.AF_INET,
+                                             socket.SOCK_STREAM)
 
             except AttributeError as error:
-                print("AttributeError warning: {0}".format(error))
-                print("This board: {} Does not support 'IPPROTO_TCP'. Creating a default UNIX like socket instead".format(self._boardType))
-                self._server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                print("AttributeError: {0}".format(error))
+                print("This board: {} , does not support the default UNIX like network sockets.".format(self._boardType))
+                raise
 
-            self._server.setsockopt( socket.SOL_SOCKET,
-                                     socket.SO_REUSEADDR,
-                                     1 )
+            self._server.setsockopt(socket.SOL_SOCKET,
+                                    socket.SO_REUSEADDR,
+                                    1)
             self._server.bind(self._srvAddr)
             self._server.listen(1)
-            if threaded :
+            if threaded:
                 MicroWebSrv._startThread(self._serverProcess)
-            else :
+            else:
                 self._serverProcess()
 
     # ----------------------------------------------------------------------------
