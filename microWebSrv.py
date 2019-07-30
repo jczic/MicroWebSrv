@@ -214,9 +214,7 @@ class MicroWebSrv :
 
     def Start(self, threaded=False) :
         if not self._started :
-            self._server = socket.socket( socket.AF_INET,
-                                          socket.SOCK_STREAM,
-                                          socket.IPPROTO_TCP )
+            self._server = socket.socket()
             self._server.setsockopt( socket.SOL_SOCKET,
                                      socket.SO_REUSEADDR,
                                      1 )
