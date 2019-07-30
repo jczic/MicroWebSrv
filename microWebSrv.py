@@ -57,15 +57,16 @@ class MicroWebSrv :
         ".json"  : "application/json",
         ".zip"   : "application/zip",
         ".pdf"   : "application/pdf",
-        ".woff"  : "application/font-woff",
-        ".woff2" : "application/font-woff2",
-        ".ttf"   : "application/x-font-ttf",
-        ".otf"   : "application/x-font-opentype",
+        ".ts"    : "application/typescript",
+        ".woff"  : "font/woff",
+        ".woff2" : "font/woff2",
+        ".ttf"   : "font/ttf",
+        ".otf"   : "font/otf",
         ".jpg"   : "image/jpeg",
         ".jpeg"  : "image/jpeg",
         ".png"   : "image/png",
         ".gif"   : "image/gif",
-        ".svg"   : "image/svg+xml",        
+        ".svg"   : "image/svg+xml",
         ".ico"   : "image/x-icon"
     }
 
