@@ -1,4 +1,4 @@
-## MicroWebSrv is a micro HTTP Web server that supports WebSockets, html/python language templating and routing handlers, for MicroPython (principally used on ESP32 and [Pycom](http://www.pycom.io) modules)
+## MicroWebSrv is a micro HTTP Web server that supports WebSockets, html/python language templating and routing handlers, for MicroPython (principally used on ESP32 and [Pycom](http://www.pycom.io) modules. Now supports all variants of [Pyboard D-series](https://store.micropython.org/category/pyboard%20D-series) from the makers of Micropython)
 
 ![HC²](hc2.png "HC²")
 
