@@ -185,6 +185,11 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
 | .json  | application/json |
 | .zip   | application/zip |
 | .pdf   | application/pdf |
+| .ts    | application/typescript |
+| .woff  | font/woff |
+| .woff2 | font/woff2 |
+| .ttf   | ttf |
+| .otf   | otf |
 | .jpg   | image/jpeg |
 | .jpeg  | image/jpeg |
 | .png   | image/png |
