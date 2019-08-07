@@ -188,8 +188,8 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
 | .ts    | application/typescript |
 | .woff  | font/woff |
 | .woff2 | font/woff2 |
-| .ttf   | ttf |
-| .otf   | otf |
+| .ttf   | font/ttf |
+| .otf   | font/otf |
 | .jpg   | image/jpeg |
 | .jpeg  | image/jpeg |
 | .png   | image/png |
