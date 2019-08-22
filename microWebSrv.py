@@ -224,7 +224,7 @@ class MicroWebSrv :
                                      socket.SO_REUSEADDR,
                                      1 )
             self._server.bind(self._srvAddr)
-            self._server.listen(1)
+            self._server.listen(16)
             if threaded :
                 MicroWebSrv._startThread(self._serverProcess)
             else :
