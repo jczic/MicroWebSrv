@@ -226,7 +226,7 @@ mws.Start(threaded=True)                               # Starts server in a new 
 | - | - |
 | Callback function to receive text message | `ws.RecvTextCallback = func(webSocket, msg)` |
 | Callback function to receive binary data | `ws.RecvBinaryCallback = func(webSocket, data)` |
-| Callback function when connection was closed | `ws.ClosedCallback(webSocket)` |
+| Callback function when connection was closed | `ws.ClosedCallback = func(webSocket)` |
 | Send a text message | `ws.SendText(msg)` |
 | Send a binary message | `ws.SendBinary(data)` |
 | Check connection state | `ws.IsClosed()` |
