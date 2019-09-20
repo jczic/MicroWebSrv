@@ -543,12 +543,18 @@ class MicroWebSrv :
 
         # ------------------------------------------------------------------------
 
-        def _write(self, data) :
+        def _write(self, data, strEncoding='ISO-8859-1') :
             if data :
                 if type(data) == str :
-                    data = data.encode()
-                return self._client._socketfile.write(data)
-            return 0
+                    data = data.encode(strEncoding)
+                data = memoryview(data)
+                while data :
+                    n = self._client._socketfile.write(data)
+                    if n is None :
+                        return False
+                    data = data[n:]
+                return True
+            return False
 
         # ------------------------------------------------------------------------
 
@@ -615,7 +621,7 @@ class MicroWebSrv :
             try :
                 if content :
                     if type(content) == str :
-                        content = content.encode()
+                        content = content.encode(contentCharset)
                     contentLength = len(content)
                 else :
                     contentLength = 0
