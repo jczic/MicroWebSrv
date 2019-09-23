@@ -10,6 +10,7 @@ from    _thread     import start_new_thread
 import  socket
 import  gc
 import  re
+import  sys
 
 try :
     from microWebTemplate import MicroWebTemplate
@@ -377,7 +378,8 @@ class MicroWebSrv :
                             response.WriteResponseNotImplemented()
                     else :
                         response.WriteResponseBadRequest()
-            except :
+            except Exception as e:
+                sys.print_exception(e)
                 response.WriteResponseInternalServerError()
             try :
                 if self._socketfile is not self._socket:
