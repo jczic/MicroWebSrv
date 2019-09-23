@@ -208,6 +208,16 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
 | default.html |
 | default.htm |
 
+### Pre-compressed static files :
+
+Static files can be pre-compressed to save flash space and speed up network transfers. Ex. `index.html.gz` or `main.js.gz`. The following encodings are supported :
+
+| File extension | Encoding |
+| - | - |
+| .gz   | gzip |
+| .br   | br |
+
+
 ### Using optional module *microWebSocket* to connect WebSockets :
 
 - File `"microWebSocket.py"` must be present to activate WebSockets support
