@@ -496,24 +496,21 @@ class MicroWebSrv :
         # ------------------------------------------------------------------------
 
         def ReadRequestContent(self, size=None) :
-            self._socket.setblocking(False)
-            b = None
-            try :
-                if not size :
-                    b = self._socketfile.read(self._contentLength)
-                elif size > 0 :
-                    b = self._socketfile.read(size)
-            except :
-                pass
-            self._socket.setblocking(True)
-            return b if b else b''
+            if size is None :
+                size = self._contentLength
+            if size > 0 :
+                try :
+                    return self._socketfile.read(size)
+                except :
+                    pass
+            return b''
 
         # ------------------------------------------------------------------------
 
         def ReadRequestPostedFormData(self) :
             res  = { }
             data = self.ReadRequestContent()
-            if len(data) > 0 :
+            if data :
                 elements = data.decode().split('&')
                 for s in elements :
                     param = s.split('=', 1)
@@ -525,10 +522,13 @@ class MicroWebSrv :
         # ------------------------------------------------------------------------
 
         def ReadRequestContentAsJSON(self) :
-            try :
-                return loads(self.ReadRequestContent())
-            except :
-                return None
+            data = self.ReadRequestContent()
+            if data :
+                try :
+                    return loads(data.decode())
+                except :
+                    pass
+            return None
         
     # ============================================================================
     # ===( Class Response  )======================================================
@@ -560,12 +560,12 @@ class MicroWebSrv :
 
         def _writeFirstLine(self, code) :
             reason = self._responseCodes.get(code, ('Unknown reason', ))[0]
-            self._write("HTTP/1.1 %s %s\r\n" % (code, reason))
+            return self._write("HTTP/1.1 %s %s\r\n" % (code, reason))
 
         # ------------------------------------------------------------------------
 
         def _writeHeader(self, name, value) :
-            self._write("%s: %s\r\n" % (name, value))
+            return self._write("%s: %s\r\n" % (name, value))
 
         # ------------------------------------------------------------------------
 
@@ -585,7 +585,7 @@ class MicroWebSrv :
         # ------------------------------------------------------------------------
 
         def _writeEndHeader(self) :
-            self._write("\r\n")
+            return self._write("\r\n")
 
         # ------------------------------------------------------------------------
 
@@ -627,7 +627,7 @@ class MicroWebSrv :
                     contentLength = 0
                 self._writeBeforeContent(code, headers, contentType, contentCharset, contentLength)
                 if content :
-                    self._write(content)
+                    return self._write(content)
                 return True
             except :
                 return False
@@ -667,7 +667,8 @@ class MicroWebSrv :
                                 x = file.readinto(buf)
                                 if x < len(buf) :
                                     buf = memoryview(buf)[:x]
-                                self._write(buf)
+                                if not self._write(buf) :
+                                    return False
                                 size -= x
                             return True
                         except :
