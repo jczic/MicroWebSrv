@@ -336,10 +336,14 @@ class MicroWebSrv :
                         if not upg :
                             routeHandler, routeArgs = self._microWebSrv.GetRouteHandler(self._resPath, self._method)
                             if routeHandler :
-                                if routeArgs is not None:
-                                    routeHandler(self, response, routeArgs)
-                                else:
-                                    routeHandler(self, response)
+                                try :
+                                    if routeArgs is not None:
+                                        routeHandler(self, response, routeArgs)
+                                    else :
+                                        routeHandler(self, response)
+                                except Exception as ex :
+                                    print('MicroWebSrv handler exception:\r\n  - In route %s %s\r\n  - %s' % (self._method, self._resPath, ex))
+                                    raise ex
                             elif self._method.upper() == "GET" :
                                 filepath = self._microWebSrv._physPathFromURLPath(self._resPath)
                                 if filepath :
