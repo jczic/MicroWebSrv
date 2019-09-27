@@ -127,14 +127,17 @@ class MicroWebSrv :
 
     @staticmethod
     def _unquote(s) :
-        r = s.split('%')
-        for i in range(1, len(r)) :
-            s = r[i]
-            try :
-                r[i] = chr(int(s[:2], 16)) + s[2:]
-            except :
-                r[i] = '%' + s
-        return ''.join(r)
+        r = str(s).split('%')
+        try :
+            b = r[0].encode()
+            for i in range(1, len(r)) :
+                try :
+                    b += bytes([int(r[i][:2], 16)]) + r[i][2:].encode()
+                except :
+                    b += b'%' + r[i].encode()
+            return b.decode('UTF-8')
+        except :
+            return str(s)
 
     # ------------------------------------------------------------------------------
 
