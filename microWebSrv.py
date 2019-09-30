@@ -293,7 +293,7 @@ class MicroWebSrv :
             	if MicroWebSrv._fileExists(physPath) :
             		return physPath
         else :
-            physPath = self._webPath + urlPath
+            physPath = self._webPath + urlPath.replace('../', '/')
             if MicroWebSrv._fileExists(physPath) :
                 return physPath
         return None
