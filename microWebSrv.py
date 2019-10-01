@@ -522,8 +522,8 @@ class MicroWebSrv :
                 for s in elements :
                     param = s.split('=', 1)
                     if len(param) > 0 :
-                        value = MicroWebSrv._unquote(param[1]) if len(param) > 1 else ''
-                        res[MicroWebSrv._unquote(param[0])] = value
+                        value = MicroWebSrv._unquote_plus(param[1]) if len(param) > 1 else ''
+                        res[MicroWebSrv._unquote_plus(param[0])] = value
             return res
 
         # ------------------------------------------------------------------------
