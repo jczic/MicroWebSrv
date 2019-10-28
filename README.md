@@ -1,7 +1,5 @@
-# :warning:&nbsp; New
-### A new version (v2.0) of this project exists here : [github.com/jczic/MicroWebSrv2](https://github.com/jczic/MicroWebSrv2).
-### Open source MIT, fully asynchronous, more robust, more fast and more efficient!
-### Thank you for your support and feedback. :relaxed:
+
+![New microWebSrv2](microWebSrv2.png "microWebSrv2")
 
 <br />
 
