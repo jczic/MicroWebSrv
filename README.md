@@ -1,8 +1,6 @@
 
 ![New microWebSrv2](microWebSrv2.png "microWebSrv2")
 
-<br />
-
 ---
 
 <br />
