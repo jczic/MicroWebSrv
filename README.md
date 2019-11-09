@@ -1,5 +1,6 @@
 
 ![New microWebSrv2](microWebSrv2.png "microWebSrv2")
+### :small_orange_diamond: [Go to microWebSrv2 !](https://microWebSrv2.hc2.fr)
 
 ---
 
