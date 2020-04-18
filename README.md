@@ -356,3 +356,5 @@ def _closedCallback(webSocket) :
 ### By JC`zic for [HC²](https://www.hc2.fr) ;')
 
 *Keep it simple, stupid* :+1:
+
+[![Run on Repl.it](https://repl.it/badge/github/MRGrantCS/MicroWebSrv)](https://repl.it/github/MRGrantCS/MicroWebSrv)
