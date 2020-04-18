@@ -1,5 +1,71 @@
+try:
+  import usocket as socket
+except:
+  import socket
+
+import machine
+
+try:
+  import uos as os
+except:
+  import os
+
+import network
+
+import utime
+#from wificonfig import settings
+
+import ujson
+
+import esp
+esp.osdebug(None)
+
+import gc
+gc.collect()
+
+from settingsGetSet import setSettings, getSettings
 
 from microWebSrv import MicroWebSrv
+
+#--- Setup AP or Station
+
+AP = False
+filename = 'settings.json'
+ssid = ''
+password = ''
+
+try:
+  ssid , password = getSettings(filename, AP)
+  station = network.WLAN(network.STA_IF)
+  station.active(True)
+  station.connect(ssid, password)
+  tries = 0  
+  while tries < 5 and station.isconnected() == False:
+    tries += 1
+    print("Connection unsuccessful. Attempt:", tries)
+    utime.sleep(3)
+  if station.isconnected() == False:
+    print('Could not connect as Station')  
+    raise Exception
+  print('Station Connection successful')
+  print(station.ifconfig())
+
+except Exception:
+  AP = True
+  ssid , password = getSettings(filename, AP)
+  ap = network.WLAN(network.AP_IF)
+  ap.active(True)
+  while ap.active() == False:
+    pass
+  ap.config(essid=ssid, password=password)
+  print('Access Point Created')
+  print(ap.ifconfig())
+
+finally:
+  print("Network details:")
+  print("SSID =",ssid)
+  print("Password =",password)
+
 
 # ----------------------------------------------------------------------------
 
@@ -17,8 +83,8 @@ def _httpHandlerTestGet(httpClient, httpResponse) :
             Client IP address = %s
             <br />
 			<form action="/test" method="post" accept-charset="ISO-8859-1">
-				First name: <input type="text" name="firstname"><br />
-				Last name: <input type="text" name="lastname"><br />
+				SSID: <input type="text" name="SSID"><br />
+				Password : <input type="text" name="PSK"><br />
 				<input type="submit" value="Submit">
 			</form>
         </body>
@@ -33,8 +99,8 @@ def _httpHandlerTestGet(httpClient, httpResponse) :
 @MicroWebSrv.route('/test', 'POST')
 def _httpHandlerTestPost(httpClient, httpResponse) :
 	formData  = httpClient.ReadRequestPostedFormData()
-	firstname = formData["firstname"]
-	lastname  = formData["lastname"]
+	SSID = formData["SSID"]
+	PSK  = formData["PSK"]
 	content   = """\
 	<!DOCTYPE html>
 	<html lang=en>
@@ -44,16 +110,18 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
         </head>
         <body>
             <h1>TEST POST</h1>
-            Firstname = %s<br />
-            Lastname = %s<br />
+            SSID = %s<br />
+            PSK = %s<br />
+            Restart after update <br />
         </body>
     </html>
-	""" % ( MicroWebSrv.HTMLEscape(firstname),
-		    MicroWebSrv.HTMLEscape(lastname) )
+	""" % ( MicroWebSrv.HTMLEscape(SSID),
+		    MicroWebSrv.HTMLEscape(PSK) )
 	httpResponse.WriteResponseOk( headers		 = None,
 								  contentType	 = "text/html",
 								  contentCharset = "UTF-8",
 								  content 		 = content )
+	setSettings("settings.json", SSID, PSK)
 
 
 @MicroWebSrv.route('/edit/<index>')             # <IP>/edit/123           ->   args['index']=123
@@ -117,5 +185,3 @@ srv.MaxWebSocketRecvLen     = 256
 srv.WebSocketThreaded		= False
 srv.AcceptWebSocketCallback = _acceptWebSocketCallback
 srv.Start()
-
-# ----------------------------------------------------------------------------
