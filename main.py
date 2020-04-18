@@ -28,7 +28,6 @@ from settingsGetSet import setSettings, getSettings
 from microWebSrv import MicroWebSrv
 
 #--- Setup AP or Station
-
 AP = False
 filename = 'settings.json'
 ssid = ''
