@@ -1,6 +1,14 @@
 
-![New microWebSrv2](microWebSrv2.png "microWebSrv2")
-## --> [Go to microWebSrv2 now!](https://github.com/jczic/MicroWebSrv2)
+<h3>
+  <p align="center">
+    Also check out the new ESP32 MPY-Jama free IDE and the latest MicroWebSrv2 web server below:
+  </p>
+</h3>
+
+<p align="center">
+  <a href="https://github.com/jczic/ESP32-MPY-Jama"><img src="https://github.com/jczic/ESP32-MPY-Jama/raw/master/img/ESP32%20MPY-Jama%20NEW.png" alt="New microWebSrv2" width="350" valign="middle"></a>                  
+  <a href="https://github.com/jczic/MicroWebSrv2"><img src="microWebSrv2.png" alt="New microWebSrv2" width="350" valign="middle"></a>
+</p>
 
 ---
 
