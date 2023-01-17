@@ -1,7 +1,7 @@
 
 <h3>
   <p align="center">
-    Also check out the new ESP32 MPY-Jama free IDE and the latest MicroWebSrv2 web server below:
+    Also check out the new ESP32 MPY-Jama free IDE and the latest MicroWebSrv2 below:
   </p>
 </h3>
 
