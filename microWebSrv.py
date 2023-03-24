@@ -406,7 +406,7 @@ class MicroWebSrv :
                     if len(elements) > 0 :
                         self._resPath = MicroWebSrv._unquote_plus(elements[0])
                         if len(elements) > 1 :
-                            self._queryString = elements[1]
+                            self._queryString = MicroWebSrv._unquote_plus(elements[1])
                             elements = self._queryString.split('&')
                             for s in elements :
                                 param = s.split('=', 1)
